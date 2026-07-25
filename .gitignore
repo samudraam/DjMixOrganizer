@@ -1,0 +1,8 @@
+.DS_Store
+/LYRIC VIS/
+/tools_n_assets/
+
+# .NET / MAUI build artifacts
+[Bb]in/
+[Oo]bj/
+*.user

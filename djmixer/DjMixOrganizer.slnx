@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="DjMixOrganizer.App/DjMixOrganizer.App.csproj" />
+  <Project Path="DjMixOrganizer.Core/DjMixOrganizer.Core.csproj" />
+  <Project Path="DjMixOrganizer.Data/DjMixOrganizer.Data.csproj" />
+  <Project Path="DjMixOrganizer.Tests/DjMixOrganizer.Tests.csproj" />
+</Solution>

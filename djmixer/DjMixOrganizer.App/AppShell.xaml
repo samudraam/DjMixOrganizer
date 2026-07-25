@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="DjMixOrganizer.App.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:DjMixOrganizer.App"
+    xmlns:views="clr-namespace:DjMixOrganizer.App.Views"
+    Title="DjMixOrganizer.App">
+
+    <ShellContent
+        Title="Mixes"
+        ContentTemplate="{DataTemplate views:MixListPage}"
+        Route="MixListPage" />
+
+</Shell>
