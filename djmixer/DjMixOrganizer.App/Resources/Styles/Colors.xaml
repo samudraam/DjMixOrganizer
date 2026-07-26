@@ -41,4 +41,26 @@
     <SolidColorBrush x:Key="Gray600Brush" Color="{StaticResource Gray600}"/>
     <SolidColorBrush x:Key="Gray900Brush" Color="{StaticResource Gray900}"/>
     <SolidColorBrush x:Key="Gray950Brush" Color="{StaticResource Gray950}"/>
+
+    <!-- Design tokens for the Library / Mixes / Mix editor screens.
+         Estimated from mockups — eyeball-correct against the simulator. -->
+    <Color x:Key="SurfaceHeader">#D9D9DC</Color>
+    <Color x:Key="SurfaceBody">#2E2D33</Color>
+    <Color x:Key="SurfacePanel">#818086</Color>
+    <Color x:Key="SurfacePanelDark">#4A4950</Color>
+    <Color x:Key="ChipBpm">#6B6F9E</Color>
+    <Color x:Key="ChipPitch">#7C8F5A</Color>
+    <Color x:Key="NodeMagenta">#C21E7A</Color>
+    <Color x:Key="NodeBlue">#1E3FE0</Color>
+    <Color x:Key="NodeGreen">#1E9E3C</Color>
+
+    <SolidColorBrush x:Key="SurfaceHeaderBrush" Color="{StaticResource SurfaceHeader}"/>
+    <SolidColorBrush x:Key="SurfaceBodyBrush" Color="{StaticResource SurfaceBody}"/>
+    <SolidColorBrush x:Key="SurfacePanelBrush" Color="{StaticResource SurfacePanel}"/>
+    <SolidColorBrush x:Key="SurfacePanelDarkBrush" Color="{StaticResource SurfacePanelDark}"/>
+    <SolidColorBrush x:Key="ChipBpmBrush" Color="{StaticResource ChipBpm}"/>
+    <SolidColorBrush x:Key="ChipPitchBrush" Color="{StaticResource ChipPitch}"/>
+    <SolidColorBrush x:Key="NodeMagentaBrush" Color="{StaticResource NodeMagenta}"/>
+    <SolidColorBrush x:Key="NodeBlueBrush" Color="{StaticResource NodeBlue}"/>
+    <SolidColorBrush x:Key="NodeGreenBrush" Color="{StaticResource NodeGreen}"/>
 </ResourceDictionary>

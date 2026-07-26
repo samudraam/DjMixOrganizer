@@ -27,44 +27,41 @@ Mixes is an ObservableCollection (see the ViewModel's teaching notes).
              xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
              x:Class="DjMixOrganizer.App.Views.MixListPage"
              x:DataType="viewmodels:MixListViewModel"
-             Title="Mixes">
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20" RowSpacing="15">
+    <Grid RowDefinitions="Auto,*">
 
         <!-- Row 0: header + loading spinner -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="10">
-            <Label Text="Your Mixes"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   VerticalOptions="Center" />
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
+            <Label Text="Mixes" Style="{StaticResource ScreenTitle}" />
             <ActivityIndicator IsRunning="{Binding IsLoading}"
                                 IsVisible="{Binding IsLoading}"
-                                VerticalOptions="Center" />
-        </HorizontalStackLayout>
+                                HorizontalOptions="End"
+                                Margin="0,0,20,0" />
+        </Grid>
 
-        <!-- Row 1: the list itself -->
-        <CollectionView Grid.Row="1"
-                         ItemsSource="{Binding Mixes}"
+        <!-- Row 1: the list itself. Padding lives on the wrapping Grid, not
+             the CollectionView — CollectionView's Padding binding doesn't
+             play well with the XAML source generator in this SDK version. -->
+        <Grid Grid.Row="1" BackgroundColor="{StaticResource SurfaceBody}" Padding="20">
+        <CollectionView ItemsSource="{Binding Mixes}"
                          SelectionMode="None">
 
             <!-- Shown instead of the CollectionView's items when Mixes is empty
                  and we're not currently loading. -->
             <CollectionView.EmptyView>
                 <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
-                    <Label Text="No mixes yet." FontSize="16" HorizontalOptions="Center" />
+                    <Label Text="No mixes yet." FontSize="16" TextColor="White" HorizontalOptions="Center" />
                     <Label Text="Tap &quot;Load Mixes&quot; to scan your library."
                            FontSize="13"
-                           TextColor="Gray"
+                           TextColor="{StaticResource Gray400}"
                            HorizontalOptions="Center" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Mix">
-                    <Border Stroke="LightGray"
-                            StrokeShape="RoundRectangle 8"
-                            Padding="15"
-                            Margin="0,0,0,8">
+                    <Border Style="{StaticResource PanelCard}" Margin="0,0,0,12">
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label Text="{Binding Title}"
@@ -72,7 +69,7 @@ Mixes is an ObservableCollection (see the ViewModel's teaching notes).
                                        FontAttributes="Bold" />
                                 <Label Text="{Binding RecordedDate}"
                                        FontSize="12"
-                                       TextColor="Gray" />
+                                       TextColor="{StaticResource Gray200}" />
                             </VerticalStackLayout>
                             <Label Grid.Column="1"
                                    Text="{Binding TotalDuration, StringFormat='{0:hh\\:mm\\:ss}'}"
@@ -83,15 +80,17 @@ Mixes is an ObservableCollection (see the ViewModel's teaching notes).
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </Grid>
 
-        <!-- Row 2: action button, wired to the [RelayCommand]-generated
-             LoadMixesCommand on the ViewModel. Command binding disables the
-             button automatically while the command is running if you use
-             [RelayCommand(CanExecute = ...)] later — not set up yet. -->
-        <Button Grid.Row="2"
+        <!-- Load button placed inside the body for now (Phase 3 replaces
+             this row with a trailing "+" card in the list itself, matching
+             the mockup). Kept here so the screen stays functional
+             mid-refactor. -->
+        <Button Grid.Row="1"
                 Text="Load Mixes"
                 Command="{Binding LoadMixesCommand}"
-                HorizontalOptions="Fill" />
+                VerticalOptions="End"
+                Margin="20" />
 
     </Grid>
 

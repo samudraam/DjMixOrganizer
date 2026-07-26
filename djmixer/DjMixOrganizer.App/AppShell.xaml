@@ -7,9 +7,23 @@
     xmlns:views="clr-namespace:DjMixOrganizer.App.Views"
     Title="DjMixOrganizer.App">
 
-    <ShellContent
-        Title="Mixes"
-        ContentTemplate="{DataTemplate views:MixListPage}"
-        Route="MixListPage" />
+    <!-- MixDetailPage is deliberately NOT declared here — it's not a tab.
+         It's pushed on top of the Mixes tab's nav stack via
+         Shell.Current.GoToAsync(), and registered as a route in
+         AppShell.xaml.cs instead. Declaring a page here vs. registering it
+         as a route is the difference between "always reachable from the
+         tab bar" and "reachable only by explicit navigation." -->
+    <TabBar>
+        <Tab Title="Library">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:LibraryPage}"
+                Route="LibraryPage" />
+        </Tab>
+        <Tab Title="Mixes">
+            <ShellContent
+                ContentTemplate="{DataTemplate views:MixListPage}"
+                Route="MixListPage" />
+        </Tab>
+    </TabBar>
 
 </Shell>
