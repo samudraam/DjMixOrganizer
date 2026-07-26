@@ -49,7 +49,7 @@
     <Color x:Key="SurfacePanel">#818086</Color>
     <Color x:Key="SurfacePanelDark">#4A4950</Color>
     <Color x:Key="ChipBpm">#6B6F9E</Color>
-    <Color x:Key="ChipPitch">#7C8F5A</Color>
+    <Color x:Key="ChipKey">#7C8F5A</Color>
     <Color x:Key="NodeMagenta">#C21E7A</Color>
     <Color x:Key="NodeBlue">#1E3FE0</Color>
     <Color x:Key="NodeGreen">#1E9E3C</Color>
@@ -59,7 +59,7 @@
     <SolidColorBrush x:Key="SurfacePanelBrush" Color="{StaticResource SurfacePanel}"/>
     <SolidColorBrush x:Key="SurfacePanelDarkBrush" Color="{StaticResource SurfacePanelDark}"/>
     <SolidColorBrush x:Key="ChipBpmBrush" Color="{StaticResource ChipBpm}"/>
-    <SolidColorBrush x:Key="ChipPitchBrush" Color="{StaticResource ChipPitch}"/>
+    <SolidColorBrush x:Key="ChipKeyBrush" Color="{StaticResource ChipKey}"/>
     <SolidColorBrush x:Key="NodeMagentaBrush" Color="{StaticResource NodeMagenta}"/>
     <SolidColorBrush x:Key="NodeBlueBrush" Color="{StaticResource NodeBlue}"/>
     <SolidColorBrush x:Key="NodeGreenBrush" Color="{StaticResource NodeGreen}"/>

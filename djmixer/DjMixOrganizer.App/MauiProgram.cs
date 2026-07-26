@@ -19,7 +19,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 
 				// Jura: titles/headings only (see Styles.xaml's ScreenTitle
-				// and Section/ItemTitle styles). BPM/pitch/info/chip text
+				// and Section/ItemTitle styles). BPM/key/info/chip text
 				// stays OpenSans.
 				fonts.AddFont("JuraDemiBold.ttf", "JuraDemiBold");
 				fonts.AddFont("JuraMedium.ttf", "JuraMedium");

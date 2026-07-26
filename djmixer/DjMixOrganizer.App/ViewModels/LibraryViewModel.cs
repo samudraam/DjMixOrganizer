@@ -4,7 +4,7 @@
 // ---------------
 // SelectedTrack is bound one-way, model -> UI: the right-hand detail panel
 // just displays whatever CollectionView.SelectedItem currently is. Contrast
-// this with the Mix editor in Phase 4, where BPM/Pitch fields are bound
+// this with the Mix editor in Phase 4, where BPM/Key fields are bound
 // two-way (UI -> model too, because you can type into them there). Same
 // binding system, different mode, because the two panels do different jobs.
 

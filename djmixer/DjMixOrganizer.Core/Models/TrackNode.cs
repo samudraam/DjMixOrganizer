@@ -4,10 +4,10 @@
 // ---------------
 // This is the node-based mix editor brainstormed in README.md, made
 // concrete. A TrackNode is "this Track, placed in this one Mix's canvas" —
-// BPM/pitch/vocals-percussion-music toggles live here, not on Track itself,
+// BPM/key/vocals-percussion-music toggles live here, not on Track itself,
 // because they're per-use-in-this-mix, not intrinsic to the audio (the same
-// track could appear pitched differently in two different mixes). Same
-// reasoning as MixTrackEntry.StartTime in Mix.cs — a property of the
+// track could be pitch-shifted to a different key in two different mixes).
+// Same reasoning as MixTrackEntry.StartTime in Mix.cs — a property of the
 // track's PLACEMENT, not the track.
 //
 // CanvasPosition is presentation state (where the node sits on screen), not
@@ -22,7 +22,7 @@
 // implementing it directly doesn't violate Core's zero-dependency rule.
 // AccentColorHex needs this: the Mix editor's "Edit Color" button changes it
 // on an existing node, and the bound Border.Stroke needs to know to
-// re-render. Bpm/Pitch/the toggles don't strictly need it (nothing else
+// re-render. Bpm/Key/the toggles don't strictly need it (nothing else
 // reads them reactively), but they're wired the same way for consistency.
 // Position is the one exception — it's deliberately NOT observable; see
 // MixDetailPage.xaml.cs for why (drag uses a visual transform, not binding).
@@ -52,11 +52,11 @@ public class TrackNode : INotifyPropertyChanged
         set { _bpm = value; OnPropertyChanged(); }
     }
 
-    private string _pitch = "8A";
-    public string Pitch
+    private string _key = "8A";
+    public string Key
     {
-        get => _pitch;
-        set { _pitch = value; OnPropertyChanged(); }
+        get => _key;
+        set { _key = value; OnPropertyChanged(); }
     }
 
     private bool _hasVocals;

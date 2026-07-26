@@ -432,7 +432,7 @@
     <!-- Jura heading hierarchy: DemiBold for the top page title, Medium for
          section headers / featured song titles, Book for smaller list-item
          song titles. Colors are untouched — only FontFamily changes here.
-         BPM/pitch/artist/date/chip text is intentionally left off this
+         BPM/key/artist/date/chip text is intentionally left off this
          hierarchy and stays on the default Label style's OpenSansRegular. -->
     <Style TargetType="Label" x:Key="ScreenTitle">
         <Setter Property="TextColor" Value="{StaticResource Gray600}" />

@@ -20,7 +20,7 @@ in an interview.
              x:DataType="viewmodels:LibraryViewModel"
              Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
             <Label Text="Library" Style="{StaticResource ScreenTitle}" />
@@ -60,8 +60,8 @@ in an interview.
                     <VerticalStackLayout Grid.Row="1" Spacing="6" BindingContext="{Binding SelectedTrack}" x:DataType="models:Track">
                         <Label Text="{Binding DisplayName}" Style="{StaticResource SectionTitle}" FontSize="24" FontAttributes="Bold" />
                         <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="16" />
-                        <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="13" />
-                        <Label Text="Song info including pitch"
+                        <Label Text="{Binding CamelotKey, StringFormat='Key : {0}'}" FontSize="13" />
+                        <Label Text="Song info including key"
                                FontSize="12"
                                TextColor="{StaticResource Gray300}" />
                     </VerticalStackLayout>

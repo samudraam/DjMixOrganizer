@@ -30,7 +30,7 @@ namespace DjMixOrganizer.App.ViewModels;
 public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
 {
     // Exposed as a static, compile-time-safe {x:Static} binding target for
-    // the Pitch Picker in MixDetailPage.xaml — it never changes per
+    // the Key Picker in MixDetailPage.xaml — it never changes per
     // instance, so it doesn't need to be an [ObservableProperty].
     public static IReadOnlyList<string> CamelotKeys { get; } = BuildCamelotKeys();
 
@@ -92,7 +92,7 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
         {
             Track = track,
             Bpm = track.Bpm ?? 120,
-            Pitch = track.CamelotKey ?? "8A",
+            Key = track.CamelotKey ?? "8A",
             HasMusic = true,
             Position = new CanvasPosition(20 + (index % 2) * 260, 20 + (index / 2) * 280),
             AccentColorHex = NodeColorPalette[index % NodeColorPalette.Length],
@@ -153,7 +153,7 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
             {
                 Track = track,
                 Bpm = track.Bpm ?? 120,
-                Pitch = track.CamelotKey ?? "8A",
+                Key = track.CamelotKey ?? "8A",
                 HasMusic = true,
                 Position = new CanvasPosition(20 + (i % 2) * 260, 20 + (i / 2) * 280),
                 AccentColorHex = NodeColorPalette[i % NodeColorPalette.Length],

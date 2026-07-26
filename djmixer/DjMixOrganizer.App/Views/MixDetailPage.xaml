@@ -39,7 +39,7 @@ something you can actually drag. Three things worth being able to explain:
         <converters:TrackNodeToWaveformBarsConverter x:Key="WaveformConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="60,*,60">
             <Button Grid.Column="0"
@@ -125,10 +125,10 @@ something you can actually drag. Three things worth being able to explain:
                                     </Grid>
 
                                     <Grid Grid.Row="3" ColumnDefinitions="Auto,*" ColumnSpacing="8">
-                                        <Label Grid.Column="0" Text="Pitch :" TextColor="{StaticResource Gray200}" FontSize="12" VerticalOptions="Center" />
+                                        <Label Grid.Column="0" Text="Key :" TextColor="{StaticResource Gray200}" FontSize="12" VerticalOptions="Center" />
                                         <Picker Grid.Column="1"
                                                 ItemsSource="{x:Static viewmodels:MixDetailViewModel.CamelotKeys}"
-                                                SelectedItem="{Binding Pitch}"
+                                                SelectedItem="{Binding Key}"
                                                 FontSize="12"
                                                 TextColor="White" />
                                     </Grid>
