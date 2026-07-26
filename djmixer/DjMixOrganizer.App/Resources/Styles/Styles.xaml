@@ -405,6 +405,58 @@
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
     </Style>
 
+    <!-- Recurring rounded dark-gray panel look shared by the sidebar, the
+         detail box, and mix-editor node cards — one place to change the
+         look instead of repeating BackgroundColor/CornerRadius per Border. -->
+    <Style TargetType="Border" x:Key="PanelCard">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfacePanel}" />
+        <Setter Property="Stroke" Value="{StaticResource SurfacePanelDark}" />
+        <Setter Property="StrokeThickness" Value="2" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="Padding" Value="16" />
+    </Style>
+
+    <Style TargetType="Border" x:Key="PanelCardDark" BasedOn="{StaticResource PanelCard}">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfacePanelDark}" />
+    </Style>
+
+    <!-- The light title bar at the top of Library/Mixes/Mix — a plain Grid
+         cell with this style applied, not a NavigationPage bar, since the
+         mockups show it as flat page content (no shadow, no back-swipe
+         chrome) rather than native nav-bar behavior. -->
+    <Style TargetType="Grid" x:Key="ScreenHeader">
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceHeader}" />
+        <Setter Property="HeightRequest" Value="80" />
+    </Style>
+
+    <!-- Jura heading hierarchy: DemiBold for the top page title, Medium for
+         section headers / featured song titles, Book for smaller list-item
+         song titles. Colors are untouched — only FontFamily changes here.
+         BPM/pitch/artist/date/chip text is intentionally left off this
+         hierarchy and stays on the default Label style's OpenSansRegular. -->
+    <Style TargetType="Label" x:Key="ScreenTitle">
+        <Setter Property="TextColor" Value="{StaticResource Gray600}" />
+        <Setter Property="FontFamily" Value="JuraDemiBold" />
+        <Setter Property="FontSize" Value="30" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="SectionTitle">
+        <Setter Property="FontFamily" Value="JuraMedium" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="ItemTitle">
+        <Setter Property="FontFamily" Value="JuraBook" />
+    </Style>
+
+    <Style TargetType="Label" x:Key="ChipLabel">
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
         <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
         <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource SecondaryDarkText}}" />

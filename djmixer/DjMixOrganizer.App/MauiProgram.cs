@@ -17,6 +17,14 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+
+				// Jura: titles/headings only (see Styles.xaml's ScreenTitle
+				// and Section/ItemTitle styles). BPM/pitch/info/chip text
+				// stays OpenSans.
+				fonts.AddFont("JuraDemiBold.ttf", "JuraDemiBold");
+				fonts.AddFont("JuraMedium.ttf", "JuraMedium");
+				fonts.AddFont("JuraBook.ttf", "JuraBook");
+				fonts.AddFont("JuraLight.ttf", "JuraLight");
 			});
 
 		// Composition root: this is the one place App is allowed to reference
@@ -24,12 +32,17 @@ public static class MauiProgram
 		// IMixRepository. AddSingleton is fine here — it's just a list in
 		// memory, no reason to recreate it per request.
 		builder.Services.AddSingleton<IMixRepository, InMemoryMixRepository>();
+		builder.Services.AddSingleton<ITrackRepository, InMemoryTrackRepository>();
 
-		// Registering these with the DI container is what lets MixListPage's
-		// constructor ask for a MixListViewModel and have MAUI hand it one,
-		// instead of the page having to `new MixListViewModel()` itself.
+		// Registering these with the DI container is what lets a page's
+		// constructor ask for its ViewModel and have MAUI hand it one,
+		// instead of the page having to `new SomeViewModel()` itself.
 		builder.Services.AddTransient<MixListViewModel>();
 		builder.Services.AddTransient<MixListPage>();
+		builder.Services.AddTransient<LibraryViewModel>();
+		builder.Services.AddTransient<LibraryPage>();
+		builder.Services.AddTransient<MixDetailViewModel>();
+		builder.Services.AddTransient<MixDetailPage>();
 
 #if DEBUG
 		builder.Logging.AddDebug();

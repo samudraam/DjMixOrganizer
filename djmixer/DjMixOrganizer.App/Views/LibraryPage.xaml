@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+File location: DjMixOrganizer.App/Views/LibraryPage.xaml
+
+TEACHING NOTES
+==============
+CollectionView.SelectionMode="Single" + SelectedItem="{Binding SelectedTrack}"
+is a two-way binding on the SELECTION itself (which item is chosen), even
+though the right-hand detail panel below only reads FROM SelectedTrack
+(one-way). Those are two different bindings on the same property, going
+in different directions for different reasons — worth being able to name
+in an interview.
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
+             xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
+             x:Class="DjMixOrganizer.App.Views.LibraryPage"
+             x:DataType="viewmodels:LibraryViewModel"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
+            <Label Text="Library" Style="{StaticResource ScreenTitle}" />
+        </Grid>
+
+        <Grid Grid.Row="1"
+              BackgroundColor="{StaticResource SurfaceBody}"
+              ColumnDefinitions="260,*"
+              Padding="16"
+              ColumnSpacing="16">
+
+            <!-- Left: "Your Tracks" sidebar -->
+            <Border Grid.Column="0" Style="{StaticResource PanelCard}">
+                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+
+                    <Label Grid.Row="0"
+                           Text="Your Tracks"
+                           Style="{StaticResource SectionTitle}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center" />
+
+                    <HorizontalStackLayout Grid.Row="1" Spacing="8">
+                        <Border BackgroundColor="{StaticResource ChipBpm}"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="Transparent"
+                                Padding="10,4">
+                            <Label Text="BPM &#8593;" Style="{StaticResource ChipLabel}" />
+                        </Border>
+                        <Border BackgroundColor="{StaticResource ChipPitch}"
+                                StrokeShape="RoundRectangle 12"
+                                Stroke="Transparent"
+                                Padding="10,4">
+                            <Label Text="PITCH C" Style="{StaticResource ChipLabel}" />
+                        </Border>
+                    </HorizontalStackLayout>
+
+                    <CollectionView Grid.Row="2"
+                                     ItemsSource="{Binding Tracks}"
+                                     SelectionMode="Single"
+                                     SelectedItem="{Binding SelectedTrack}">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Track">
+                                <Grid ColumnDefinitions="40,*" Padding="0,6" ColumnSpacing="8">
+                                    <Border Grid.Column="0"
+                                            BackgroundColor="{StaticResource SurfacePanelDark}"
+                                            StrokeShape="RoundRectangle 6"
+                                            Stroke="Transparent"
+                                            HeightRequest="40"
+                                            WidthRequest="40"
+                                            Padding="0">
+                                        <Label Text="&#9835;"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               TextColor="{StaticResource Gray200}" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding Title}" Style="{StaticResource ItemTitle}" FontSize="13" LineBreakMode="TailTruncation" />
+                                        <HorizontalStackLayout Spacing="10">
+                                            <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
+                                            <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Grid.Row="3"
+                           Text="UPLOAD A SONG TO LIBRARY"
+                           FontSize="11"
+                           TextColor="{StaticResource Gray300}"
+                           HorizontalOptions="Center" />
+
+                </Grid>
+            </Border>
+
+            <!-- Right: selected-track detail panel -->
+            <Border Grid.Column="1" Style="{StaticResource PanelCard}">
+                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20" x:DataType="viewmodels:LibraryViewModel">
+
+                    <Border Grid.Row="0"
+                            HeightRequest="220"
+                            WidthRequest="220"
+                            HorizontalOptions="Center"
+                            Stroke="{StaticResource NodeMagenta}"
+                            StrokeThickness="3"
+                            StrokeShape="RoundRectangle 8"
+                            BackgroundColor="{StaticResource SurfacePanelDark}">
+                        <Label Text="&#9835;"
+                               FontSize="60"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               TextColor="{StaticResource Gray300}" />
+                    </Border>
+
+                    <VerticalStackLayout Grid.Row="1" Spacing="6" BindingContext="{Binding SelectedTrack}" x:DataType="models:Track">
+                        <Label Text="{Binding DisplayName}" Style="{StaticResource SectionTitle}" FontSize="24" FontAttributes="Bold" />
+                        <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="16" />
+                        <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="13" />
+                        <Label Text="Song info including pitch"
+                               FontSize="12"
+                               TextColor="{StaticResource Gray300}" />
+                    </VerticalStackLayout>
+
+                </Grid>
+            </Border>
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>

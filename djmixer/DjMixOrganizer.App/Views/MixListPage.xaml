@@ -11,87 +11,123 @@ This is the "View" in MVVM. Two things make that true:
    at compile time instead of failing silently at runtime with a typo.
 
 2. Nothing in this file reaches into DjMixOrganizer.Core or touches a Mix
-   object directly. It only knows about properties on the ViewModel
-   (Mixes, IsLoading, LoadMixesCommand). The View is "dumb" on purpose —
-   swap MixListViewModel for a different one with the same shape and this
-   XAML doesn't need to change.
+   object directly beyond what's needed to display it. Coloring/joining
+   logic for the "Track x Track" title lives in a converter
+   (Converters/MixTrackFormattingConverters.cs), not here and not on Mix
+   itself — the View stays declarative, the Mix model stays UI-agnostic.
 
 CollectionView + ItemsSource="{Binding Mixes}" is the MAUI equivalent of
 mapping over a list in React (`mixes.map(mix => <Row .../>)`) or a
 ListView.builder in Flutter — it re-renders items automatically because
 Mixes is an ObservableCollection (see the ViewModel's teaching notes).
+
+CollectionView.Footer is what renders the trailing "+" create card
+regardless of how many mixes exist — cleaner than trying to special-case
+"the last item" inside the ItemTemplate.
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
              xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
+             xmlns:converters="clr-namespace:DjMixOrganizer.App.Converters"
              x:Class="DjMixOrganizer.App.Views.MixListPage"
+             x:Name="Root"
              x:DataType="viewmodels:MixListViewModel"
-             Title="Mixes">
+             Shell.NavBarIsVisible="False">
 
-    <Grid RowDefinitions="Auto,*,Auto" Padding="20" RowSpacing="15">
+    <ContentPage.Resources>
+        <converters:MixTitleToFormattedStringConverter x:Key="MixTitleConverter" />
+        <converters:MixArtistsToStringConverter x:Key="MixArtistsConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <!-- Row 0: header + loading spinner -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="10">
-            <Label Text="Your Mixes"
-                   FontSize="24"
-                   FontAttributes="Bold"
-                   VerticalOptions="Center" />
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
+            <Label Text="Mixes" Style="{StaticResource ScreenTitle}" />
             <ActivityIndicator IsRunning="{Binding IsLoading}"
                                 IsVisible="{Binding IsLoading}"
-                                VerticalOptions="Center" />
-        </HorizontalStackLayout>
+                                HorizontalOptions="End"
+                                Margin="0,0,20,0" />
+        </Grid>
 
-        <!-- Row 1: the list itself -->
-        <CollectionView Grid.Row="1"
-                         ItemsSource="{Binding Mixes}"
-                         SelectionMode="None">
+        <!-- Row 1: the list itself, inside one big panel card matching the
+             mockup's outer gray-purple container. -->
+        <Border Grid.Row="1"
+                Style="{StaticResource PanelCard}"
+                Margin="20"
+                BackgroundColor="{StaticResource SurfacePanel}">
 
-            <!-- Shown instead of the CollectionView's items when Mixes is empty
-                 and we're not currently loading. -->
-            <CollectionView.EmptyView>
-                <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
-                    <Label Text="No mixes yet." FontSize="16" HorizontalOptions="Center" />
-                    <Label Text="Tap &quot;Load Mixes&quot; to scan your library."
-                           FontSize="13"
-                           TextColor="Gray"
-                           HorizontalOptions="Center" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
+            <CollectionView ItemsSource="{Binding Mixes}" SelectionMode="None">
 
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Mix">
-                    <Border Stroke="LightGray"
-                            StrokeShape="RoundRectangle 8"
-                            Padding="15"
-                            Margin="0,0,0,8">
-                        <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout Grid.Column="0" Spacing="4">
-                                <Label Text="{Binding Title}"
-                                       FontSize="16"
-                                       FontAttributes="Bold" />
-                                <Label Text="{Binding RecordedDate}"
-                                       FontSize="12"
-                                       TextColor="Gray" />
+                <!-- Shown instead of the CollectionView's items when Mixes is
+                     empty and we're not currently loading. -->
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
+                        <Label Text="No mixes yet." FontSize="16" HorizontalOptions="Center" />
+                        <Label Text="Tap the + card below to start one."
+                               FontSize="13"
+                               TextColor="{StaticResource Gray300}"
+                               HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Mix">
+                        <Border BackgroundColor="{StaticResource SurfacePanelDark}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 10"
+                                Padding="16,12"
+                                Margin="0,0,0,10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding OpenMixCommand, Source={x:Reference Root}}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="4">
+                                <!-- MAUI Label/Span have no real text-stroke property; a
+                                     near-zero-offset white Shadow is the closest native
+                                     approximation of a white outline around the colored text. -->
+                                <Label FormattedText="{Binding ., Converter={StaticResource MixTitleConverter}}"
+                                       FontSize="17"
+                                       TextColor="White">
+                                    <Label.Shadow>
+                                        <Shadow Brush="Black" Opacity="1" Radius="2" Offset="0,0" />
+                                    </Label.Shadow>
+                                </Label>
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding ., Converter={StaticResource MixArtistsConverter}}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Gray300}" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding RecordedDate, StringFormat='{0:MMM d, yyyy}'}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource Gray300}" />
+                                </Grid>
                             </VerticalStackLayout>
-                            <Label Grid.Column="1"
-                                   Text="{Binding TotalDuration, StringFormat='{0:hh\\:mm\\:ss}'}"
-                                   VerticalOptions="Center"
-                                   FontSize="14" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
 
-        <!-- Row 2: action button, wired to the [RelayCommand]-generated
-             LoadMixesCommand on the ViewModel. Command binding disables the
-             button automatically while the command is running if you use
-             [RelayCommand(CanExecute = ...)] later — not set up yet. -->
-        <Button Grid.Row="2"
-                Text="Load Mixes"
-                Command="{Binding LoadMixesCommand}"
-                HorizontalOptions="Fill" />
+                <CollectionView.Footer>
+                    <Border BackgroundColor="{StaticResource SurfacePanelDark}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            HeightRequest="72">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CreateMixCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label Text="+"
+                               FontSize="28"
+                               TextColor="White"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                </CollectionView.Footer>
+
+            </CollectionView>
+        </Border>
 
     </Grid>
 

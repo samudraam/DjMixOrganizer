@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+File location: DjMixOrganizer.App/Views/MixDetailPage.xaml
+
+Phase 1 scaffold: header + back arrow + correct background. Not part of
+the Shell TabBar — pushed on top of the Mixes tab's navigation stack via
+GoToAsync, so Shell.TabBarIsVisible="False" hides the bottom nav while
+this page is open (matches the mockup: no bottom bar on the editor screen).
+Draggable node canvas lands in Phase 4 — see MixDetailViewModel.
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
+             x:Class="DjMixOrganizer.App.Views.MixDetailPage"
+             x:DataType="viewmodels:MixDetailViewModel"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="60,*,60">
+            <Button Grid.Column="0"
+                    Text="&#8592;"
+                    FontSize="22"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Gray600}"
+                    Clicked="OnBackClicked"
+                    HorizontalOptions="Start"
+                    Margin="12,0,0,0" />
+            <Label Grid.Column="1" Text="Mix" Style="{StaticResource ScreenTitle}" />
+        </Grid>
+
+        <Grid Grid.Row="1" BackgroundColor="{StaticResource SurfaceBody}">
+            <Label Text="Track sidebar and node canvas land here in Phase 4."
+                   TextColor="{StaticResource Gray400}"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
