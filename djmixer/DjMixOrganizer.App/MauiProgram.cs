@@ -12,6 +12,28 @@ public static class MauiProgram
 {
 	public static MauiApp CreateMauiApp()
 	{
+		// DjMixConnectionString.FromEnvironment() (below) reads process
+		// environment variables — that's the right call for `dotnet ef`
+		// commands run from a shell where you've `source .env`'d, but a
+		// GUI-launched app (double-clicking the .app, Xcode, the iOS
+		// Simulator) gets a fresh environment from launchd, not your
+		// terminal's. Without this, CreateMauiApp() throws before the UI
+		// ever appears — a same-process crash at launch, no dialog, nothing.
+		// LoadBundledEnvVars reads a copy of .env bundled straight into the
+		// app package (Resources/Raw/local.env, gitignored — never
+		// committed) via FileSystem.OpenAppPackageFileAsync, the one API
+		// that reads bundled assets identically across every MAUI platform,
+		// including Android where MauiAsset files aren't real files on disk.
+		//
+		// CreateMauiApp() runs on the main thread, which already has a
+		// platform UI SynchronizationContext attached — awaiting straight
+		// on that thread and then blocking on .GetResult() deadlocks,
+		// because the awaited continuation wants to resume on the very
+		// thread that's stuck waiting for it. Task.Run moves the whole
+		// operation onto a thread-pool thread first, which has no captured
+		// context to deadlock against.
+		Task.Run(LoadBundledEnvVars).GetAwaiter().GetResult();
+
 		var builder = MauiApp.CreateBuilder();
 		builder
 			.UseMauiApp<App>()
@@ -62,5 +84,31 @@ public static class MauiProgram
 #endif
 
 		return builder.Build();
+	}
+
+	private static async Task LoadBundledEnvVars()
+	{
+		try
+		{
+			using var stream = await FileSystem.OpenAppPackageFileAsync("local.env");
+			using var reader = new StreamReader(stream);
+
+			string? line;
+			while ((line = await reader.ReadLineAsync()) is not null)
+			{
+				var parts = line.Split('=', 2);
+				// Never overwrites a value already set by the real process
+				// environment — a genuine deployment's env vars still win.
+				if (parts.Length == 2 && Environment.GetEnvironmentVariable(parts[0]) is null)
+				{
+					Environment.SetEnvironmentVariable(parts[0], parts[1]);
+				}
+			}
+		}
+		catch (FileNotFoundException)
+		{
+			// No bundled local.env — rely on whatever's already in the
+			// process environment instead.
+		}
 	}
 }
