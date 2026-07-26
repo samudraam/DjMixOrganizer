@@ -30,6 +30,7 @@ something you can actually drag. Three things worth being able to explain:
              xmlns:converters="clr-namespace:DjMixOrganizer.App.Converters"
              x:Class="DjMixOrganizer.App.Views.MixDetailPage"
              x:DataType="viewmodels:MixDetailViewModel"
+             BackgroundColor="{StaticResource SurfaceHeader}"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
 
@@ -40,7 +41,7 @@ something you can actually drag. Three things worth being able to explain:
         <converters:TrackNodeToWaveformBarsConverter x:Key="WaveformConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="60,*,90">
             <Button Grid.Column="0"
@@ -72,7 +73,17 @@ something you can actually drag. Three things worth being able to explain:
                     Margin="0,0,12,0" />
         </Grid>
 
-        <Grid Grid.Row="1"
+        <!-- Mirrors LibraryPage's StatusMessage: SaveMixAsync never rethrows,
+             so validation / DB errors land here instead of crashing the app. -->
+        <Label Grid.Row="1"
+               Text="{Binding StatusMessage}"
+               FontSize="13"
+               TextColor="{StaticResource Gray600}"
+               HorizontalTextAlignment="Center"
+               Margin="16,0,16,8"
+               LineBreakMode="WordWrap" />
+
+        <Grid Grid.Row="2"
               BackgroundColor="{StaticResource SurfaceBody}"
               ColumnDefinitions="260,*"
               Padding="16"
@@ -178,7 +189,7 @@ something you can actually drag. Three things worth being able to explain:
                                     <Grid Grid.Row="3" ColumnDefinitions="Auto,*" ColumnSpacing="8">
                                         <Label Grid.Column="0" Text="Key :" TextColor="{StaticResource Gray200}" FontSize="12" VerticalOptions="Center" />
                                         <Picker Grid.Column="1"
-                                                ItemsSource="{x:Static viewmodels:MixDetailViewModel.CamelotKeys}"
+                                                ItemsSource="{x:Static viewmodels:MixDetailViewModel.MusicalKeys}"
                                                 SelectedItem="{Binding Key}"
                                                 FontSize="12"
                                                 TextColor="White" />

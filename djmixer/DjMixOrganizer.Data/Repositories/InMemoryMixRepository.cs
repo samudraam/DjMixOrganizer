@@ -14,7 +14,7 @@ public class InMemoryMixRepository : IMixRepository
             Title = "Bandit (with Youngboy Never Broke Again)",
             Artist = "Juice WRLD",
             Bpm = 115,
-            CamelotKey = "C",
+            MusicalKey = new MusicalKey("C"),
             Duration = TimeSpan.FromMinutes(3.5),
             FilePath = "/seed/bandit.mp3",
         };
@@ -22,7 +22,7 @@ public class InMemoryMixRepository : IMixRepository
         {
             Title = "In My Mind",
             Bpm = 115,
-            CamelotKey = "C",
+            MusicalKey = new MusicalKey("C"),
             Duration = TimeSpan.FromMinutes(3.25),
             FilePath = "/seed/in-my-mind.mp3",
         };

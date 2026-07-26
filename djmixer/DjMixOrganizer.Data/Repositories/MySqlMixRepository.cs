@@ -25,6 +25,8 @@ public class MySqlMixRepository(IDbContextFactory<DjMixDbContext> contextFactory
     // on a duplicate primary key.
     public async Task SaveAsync(Mix mix)
     {
+        ArgumentNullException.ThrowIfNull(mix);
+
         await using var context = await contextFactory.CreateDbContextAsync();
 
         var existing = await context.Mixes
@@ -35,11 +37,15 @@ public class MySqlMixRepository(IDbContextFactory<DjMixDbContext> contextFactory
         Mix target;
         if (existing is null)
         {
+            System.Diagnostics.Debug.WriteLine(
+                $"[MySqlMixRepository] Inserting new mix Id={mix.Id}, Title='{mix.Title}'.");
             target = new Mix { Id = mix.Id, Title = mix.Title, RecordedDate = mix.RecordedDate };
             context.Mixes.Add(target);
         }
         else
         {
+            System.Diagnostics.Debug.WriteLine(
+                $"[MySqlMixRepository] Updating mix Id={mix.Id}, Title='{mix.Title}'.");
             existing.Title = mix.Title;
             existing.RecordedDate = mix.RecordedDate;
             foreach (var trackId in existing.Tracks.Select(entry => entry.Track.Id).ToList())
@@ -58,5 +64,7 @@ public class MySqlMixRepository(IDbContextFactory<DjMixDbContext> contextFactory
         }
 
         await context.SaveChangesAsync();
+        System.Diagnostics.Debug.WriteLine(
+            $"[MySqlMixRepository] SaveChanges committed for '{mix.Title}' with {mix.Tracks.Count} track(s).");
     }
 }

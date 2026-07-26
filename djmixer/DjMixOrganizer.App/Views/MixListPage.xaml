@@ -33,7 +33,9 @@ regardless of how many mixes exist — cleaner than trying to special-case
              x:Class="DjMixOrganizer.App.Views.MixListPage"
              x:Name="Root"
              x:DataType="viewmodels:MixListViewModel"
-             Shell.NavBarIsVisible="False">
+             BackgroundColor="{StaticResource SurfaceHeader}"
+             Shell.NavBarIsVisible="False"
+>
 
     <ContentPage.Resources>
         <converters:MixTitleToFormattedStringConverter x:Key="MixTitleConverter" />
@@ -43,9 +45,16 @@ regardless of how many mixes exist — cleaner than trying to special-case
     <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <!-- Row 0: header + loading spinner -->
-        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
-            <Label Text="Mixes" Style="{StaticResource ScreenTitle}" />
-            <ActivityIndicator IsRunning="{Binding IsLoading}"
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="Auto,*,Auto">
+            <Image Grid.Column="0"
+                   Source="mixes.png"
+                   HeightRequest="24"
+                   WidthRequest="24"
+                   Margin="16,0,8,0"
+                   VerticalOptions="Center" />
+            <Label Grid.Column="1" Text="Mixes" Style="{StaticResource ScreenTitle}" HorizontalOptions="Start" />
+            <ActivityIndicator Grid.Column="2"
+                                IsRunning="{Binding IsLoading}"
                                 IsVisible="{Binding IsLoading}"
                                 HorizontalOptions="End"
                                 Margin="0,0,20,0" />
@@ -80,8 +89,11 @@ regardless of how many mixes exist — cleaner than trying to special-case
                                 Padding="16,12"
                                 Margin="0,0,0,10">
                             <Border.GestureRecognizers>
+                                <!-- DataTemplate BindingContext is the Mix row, so climb to
+                                     the page and read OpenMixCommand off its ViewModel —
+                                     same pattern as RemoveNodeCommand on MixDetailPage. -->
                                 <TapGestureRecognizer
-                                    Command="{Binding OpenMixCommand, Source={x:Reference Root}}"
+                                    Command="{Binding BindingContext.OpenMixCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="4">

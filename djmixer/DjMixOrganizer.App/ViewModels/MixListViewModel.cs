@@ -68,9 +68,12 @@ public partial class MixListViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadMixesAsync()
     {
-        if (Mixes.Count > 0)
+        // Always re-fetch. OnAppearing fires every time you return to this
+        // tab (including after Save on MixDetailPage). An early "already
+        // loaded" return would hide newly saved mixes until app restart.
+        if (IsLoading)
         {
-            return; // already loaded — OnAppearing can fire more than once
+            return;
         }
 
         IsLoading = true;
@@ -78,6 +81,8 @@ public partial class MixListViewModel : ObservableObject
         {
             var mixes = await _mixRepository.GetAllAsync();
             Mixes = new ObservableCollection<Mix>(mixes);
+            System.Diagnostics.Debug.WriteLine(
+                $"[MixList] Loaded {Mixes.Count} mix(es) from repository.");
         }
         finally
         {

@@ -50,9 +50,10 @@ public class Track
     // before it's been analyzed/tagged.
     public double? Bpm { get; set; }
 
-    // Musical key using Camelot notation (e.g. "8A") — standard in DJ
-    // software for harmonic mixing. Nullable for the same reason as Bpm.
-    public string? CamelotKey { get; set; }
+    // Classical letter key (C, Am, F#m) — not Camelot. Parsed/normalized
+    // at the upload boundary via MusicalKey.TryParse so the DB never stores
+    // junk like "8A" or "a c b".
+    public MusicalKey? MusicalKey { get; set; }
 
     public TimeSpan Duration { get; set; }
 

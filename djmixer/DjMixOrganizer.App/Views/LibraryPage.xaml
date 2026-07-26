@@ -4,26 +4,44 @@ File location: DjMixOrganizer.App/Views/LibraryPage.xaml
 
 TEACHING NOTES
 ==============
-CollectionView.SelectionMode="Single" + SelectedItem="{Binding SelectedTrack}"
-is a two-way binding on the SELECTION itself (which item is chosen), even
-though the right-hand detail panel below only reads FROM SelectedTrack
-(one-way). Those are two different bindings on the same property, going
-in different directions for different reasons — worth being able to name
-in an interview.
+IsAddingSong toggles which right-hand panel is visible (detail vs form)
+via IsVisible bindings. That keeps both layouts in one page without a
+second route — fine for a simple modal-ish mode switch.
+
+AddSongCommand does not live in the View: the Button's Command binding
+points at the ViewModel. The View stays markup + OnAppearing only.
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
              xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
              xmlns:controls="clr-namespace:DjMixOrganizer.App.Controls"
+             xmlns:converters="clr-namespace:DjMixOrganizer.App.Converters"
              x:Class="DjMixOrganizer.App.Views.LibraryPage"
              x:DataType="viewmodels:LibraryViewModel"
-             Shell.NavBarIsVisible="False">
+             BackgroundColor="{StaticResource SurfaceHeader}"
+             Shell.NavBarIsVisible="False"
+>
+
+    <ContentPage.Resources>
+        <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
-        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
-            <Label Text="Library" Style="{StaticResource ScreenTitle}" />
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="Auto,*,Auto">
+            <Image Grid.Column="0"
+                   Source="library.png"
+                   HeightRequest="24"
+                   WidthRequest="24"
+                   Margin="16,0,8,0"
+                   VerticalOptions="Center" />
+            <Label Grid.Column="1" Text="Library" Style="{StaticResource ScreenTitle}" />
+            <Button Grid.Column="2"
+                    Text="Add song"
+                    Command="{Binding BeginAddSongCommand}"
+                    Margin="0,0,16,0"
+                    VerticalOptions="Center" />
         </Grid>
 
         <Grid Grid.Row="1"
@@ -32,15 +50,15 @@ in an interview.
               Padding="16"
               ColumnSpacing="16">
 
-            <!-- Left: "Your Tracks" sidebar — shared with MixDetailPage, see
-                 Controls/TrackListPanel.xaml. -->
             <controls:TrackListPanel Grid.Column="0"
                                       TracksSource="{Binding Tracks}"
                                       SelectedTrack="{Binding SelectedTrack}" />
 
-            <!-- Right: selected-track detail panel -->
-            <Border Grid.Column="1" Style="{StaticResource PanelCard}">
-                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20" x:DataType="viewmodels:LibraryViewModel">
+            <!-- Detail panel: shown when the Add/Edit form is closed. -->
+            <Border Grid.Column="1"
+                    Style="{StaticResource PanelCard}"
+                    IsVisible="{Binding IsFormOpen, Converter={StaticResource InvertedBoolConverter}}">
+                <Grid RowDefinitions="Auto,Auto,*" RowSpacing="20">
 
                     <Border Grid.Row="0"
                             HeightRequest="220"
@@ -57,16 +75,102 @@ in an interview.
                                TextColor="{StaticResource Gray300}" />
                     </Border>
 
-                    <VerticalStackLayout Grid.Row="1" Spacing="6" BindingContext="{Binding SelectedTrack}" x:DataType="models:Track">
-                        <Label Text="{Binding DisplayName}" Style="{StaticResource SectionTitle}" FontSize="24" FontAttributes="Bold" />
+                    <VerticalStackLayout Grid.Row="1"
+                                         Spacing="6"
+                                         BindingContext="{Binding SelectedTrack}"
+                                         x:DataType="models:Track">
+                        <Label Text="{Binding DisplayName}"
+                               Style="{StaticResource SectionTitle}"
+                               FontSize="24"
+                               FontAttributes="Bold" />
                         <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="16" />
-                        <Label Text="{Binding CamelotKey, StringFormat='Key : {0}'}" FontSize="13" />
+                        <Label Text="{Binding MusicalKey, StringFormat='Key : {0}'}" FontSize="13" />
                         <Label Text="Song info including key"
                                FontSize="12"
                                TextColor="{StaticResource Gray300}" />
                     </VerticalStackLayout>
 
+                    <Button Grid.Row="2"
+                            Text="Edit song"
+                            Command="{Binding BeginEditSongCommand}"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Start"
+                            Margin="0,8,0,0" />
+
                 </Grid>
+            </Border>
+
+            <!-- Shared Add/Edit form. -->
+            <Border Grid.Column="1"
+                    Style="{StaticResource PanelCard}"
+                    IsVisible="{Binding IsFormOpen}"
+                    Padding="20">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="{Binding FormHeading}"
+                               Style="{StaticResource SectionTitle}"
+                               FontSize="22"
+                               FontAttributes="Bold" />
+
+                        <Label Text="Title" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Entry Text="{Binding NewTitle}"
+                               Placeholder="Track title"
+                               TextColor="White"
+                               PlaceholderColor="{StaticResource Gray300}" />
+
+                        <Label Text="Artist" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Entry Text="{Binding NewArtist}"
+                               Placeholder="Optional"
+                               TextColor="White"
+                               PlaceholderColor="{StaticResource Gray300}" />
+
+                        <Label Text="BPM" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Entry Text="{Binding NewBpmText}"
+                               Placeholder="e.g. 128"
+                               Keyboard="Numeric"
+                               TextColor="White"
+                               PlaceholderColor="{StaticResource Gray300}" />
+
+                        <Label Text="Key (letter form)" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Picker Title="Select key"
+                                ItemsSource="{x:Static viewmodels:LibraryViewModel.MusicalKeys}"
+                                SelectedItem="{Binding NewKey}"
+                                TextColor="White" />
+
+                        <Label Text="Audio file" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry Grid.Column="0"
+                                   Text="{Binding NewFilePath}"
+                                   Placeholder="Paste a path or use Browse"
+                                   TextColor="White"
+                                   PlaceholderColor="{StaticResource Gray300}" />
+                            <Button Grid.Column="1"
+                                    Text="Browse"
+                                    Command="{Binding PickAudioFileCommand}" />
+                        </Grid>
+                        <Label Text="{Binding NewFileDisplayName}"
+                               FontSize="11"
+                               TextColor="{StaticResource Gray300}"
+                               LineBreakMode="MiddleTruncation"
+                               MaxLines="1" />
+
+                        <Label Text="{Binding StatusMessage}"
+                               FontSize="12"
+                               TextColor="{StaticResource Gray200}"
+                               LineBreakMode="WordWrap" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" Margin="0,8,0,0">
+                            <Button Grid.Column="0"
+                                    Text="Cancel"
+                                    Command="{Binding CancelSongFormCommand}"
+                                    BackgroundColor="{StaticResource SurfacePanelDark}" />
+                            <Button Grid.Column="1"
+                                    Text="{Binding SaveButtonText}"
+                                    Command="{Binding SaveSongCommand}"
+                                    IsEnabled="{Binding IsSaving, Converter={StaticResource InvertedBoolConverter}}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </ScrollView>
             </Border>
 
         </Grid>

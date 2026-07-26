@@ -14,12 +14,12 @@
          as a route is the difference between "always reachable from the
          tab bar" and "reachable only by explicit navigation." -->
     <TabBar>
-        <Tab Title="Library">
+        <Tab Title="Library" Icon="library.png">
             <ShellContent
                 ContentTemplate="{DataTemplate views:LibraryPage}"
                 Route="LibraryPage" />
         </Tab>
-        <Tab Title="Mixes">
+        <Tab Title="Mixes" Icon="mixes.png">
             <ShellContent
                 ContentTemplate="{DataTemplate views:MixListPage}"
                 Route="MixListPage" />

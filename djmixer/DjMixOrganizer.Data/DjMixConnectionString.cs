@@ -17,6 +17,9 @@ public static class DjMixConnectionString
             Database = RequireEnv("MYSQL_DATABASE"),
             UserID = RequireEnv("MYSQL_USER"),
             Password = RequireEnv("MYSQL_PASSWORD"),
+            // Fail fast instead of freezing the MAUI UI for the default ~15s+
+            // when Docker MySQL isn't reachable from the simulator.
+            ConnectionTimeout = 5,
         };
 
         return builder.ConnectionString;

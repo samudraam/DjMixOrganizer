@@ -400,9 +400,12 @@
     </Style>
     -->
 
+    <!-- SurfaceHeader (not White): MAUI lays page content inside the safe
+         area, so the strip under the status bar shows the Page background.
+         White here was the empty band above Library/Mixes custom headers. -->
     <Style TargetType="Page" ApplyToDerivedTypes="True">
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource SurfaceHeader}" />
     </Style>
 
     <!-- Recurring rounded dark-gray panel look shared by the sidebar, the
@@ -457,8 +460,12 @@
         <Setter Property="VerticalOptions" Value="Center" />
     </Style>
 
+    <!-- NavBar hidden app-wide: Library/Mixes/MixDetail draw their own
+         ScreenHeader. Leaving the Shell bar on showed a blank white band
+         above that header (MixDetail already opted out locally). -->
     <Style TargetType="Shell" ApplyToDerivedTypes="True">
-        <Setter Property="Shell.BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
+        <Setter Property="Shell.NavBarIsVisible" Value="False" />
+        <Setter Property="Shell.BackgroundColor" Value="{StaticResource SurfaceHeader}" />
         <Setter Property="Shell.ForegroundColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource SecondaryDarkText}}" />
         <Setter Property="Shell.TitleColor" Value="{AppThemeBinding Light={StaticResource Black}, Dark={StaticResource SecondaryDarkText}}" />
         <Setter Property="Shell.DisabledColor" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />

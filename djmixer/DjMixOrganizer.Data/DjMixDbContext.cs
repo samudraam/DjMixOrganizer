@@ -1,5 +1,6 @@
 using DjMixOrganizer.Core.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DjMixOrganizer.Data;
 
@@ -16,6 +17,18 @@ public class DjMixDbContext(DbContextOptions<DjMixDbContext> options) : DbContex
             // DisplayName is computed from Artist/Title in C# (Track.cs) —
             // there's no column for it, so EF should never try to map it.
             track.Ignore(t => t.DisplayName);
+
+            // EF null-handles MusicalKey? automatically when the converter is
+            // non-nullable MusicalKey <-> string. A MusicalKey?/string? converter
+            // double-wraps nulls and can fail on SaveChanges.
+            var musicalKeyConverter = new ValueConverter<MusicalKey, string>(
+                key => key.Value,
+                value => MusicalKey.Parse(value));
+
+            track.Property(t => t.MusicalKey)
+                .HasConversion(musicalKeyConverter)
+                .HasMaxLength(8)
+                .HasColumnType("varchar(8)");
         });
 
         modelBuilder.Entity<Mix>(mix =>
