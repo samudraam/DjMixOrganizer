@@ -123,6 +123,12 @@ noted at the top of each file) and `dotnet build`.
 ## How to Run
 
 ```bash
+
+cd /Users/RamyaSamudrala/Developer/music/djmixer
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-maccatalyst
+open "$(pwd)/DjMixOrganizer.App/bin/Debug/net10.0-maccatalyst/maccatalyst-arm64/DjMixOrganizer.App.app"
+
+Build failed with 1 error(s) in 0.3s
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 open -a Simulator
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
