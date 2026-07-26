@@ -1,9 +1,12 @@
 # DJ Mix Organizer — Learning Roadmap
 
+- App – the UI (MixListPage, etc.)
+- Core – models like Mix, Track, Playlist
+- Data – data layer
+- Tests – unit test
+
 This project exists to do two things at once: give you a real tool you'll
-actually use, and give you deliberate reps in the skills on your interview's
-"preferred qualifications" list. Each phase below is a genuine milestone, not
-a toy exercise.
+actually use and excersize knowledge of c# and maui.
 
 ## Why the architecture looks the way it does
 
@@ -378,3 +381,144 @@ And the modeling point above still applies: BPM/key/cue points belong on
 `Track` (intrinsic to the audio); pitch shift and tempo adjustment belong on
 the per-mix node (`TrackNode`) — because that's genuinely how DJ software
 itself treats them.
+
+## Git workflow: branches, pushing, merging
+
+This repo lives at `origin` → `https://github.com/samudraam/DjMixOrganizer`,
+tracked from local `main`. The 8 roadmap/housekeeping issues opened on
+GitHub are meant to be worked one branch at a time using the flow below.
+
+### The mental model
+
+`main` should always be in a state you'd be okay building from. You never
+edit it directly for real work — instead:
+
+1. Branch off `main` for one issue/feature.
+2. Commit your changes on that branch.
+3. Push the branch to GitHub.
+4. Open a Pull Request (PR) — this is where the *diff* gets reviewed before
+   it becomes part of `main`.
+5. Merge the PR. `main` now has your change; your branch can be deleted.
+
+The branch is a scratch space — as many messy, half-working commits as you
+want — that only gets combined into `main` once it's ready.
+
+### Everyday commands
+
+**Start a new branch for an issue** (always branch from an up-to-date
+`main`):
+
+```bash
+git checkout main
+git pull                              # make sure you're starting from the latest main
+git checkout -b task1-mix-repository  # creates AND switches to the new branch
+```
+
+Name branches after what they do, not who's doing it —
+`task1-mix-repository`, `phase3-id3-parsing`, `fix-dead-mainpage`. This
+repo's issues map 1:1 to good branch names; e.g. Issue #1 → `task1-mix-repository`.
+
+**Make your changes, then commit them:**
+
+```bash
+git status                 # see what you've touched
+git add DjMixOrganizer.Core/Repositories/IMixRepository.cs
+git add DjMixOrganizer.Data/Repositories/InMemoryMixRepository.cs
+git commit -m "Add IMixRepository and in-memory implementation"
+```
+
+Prefer several small, focused commits over one giant one — each commit
+should be a single coherent step, not "end of day checkpoint."
+
+**Push the branch to GitHub** (`-u` only needed the *first* time you push
+this branch — it links your local branch to a remote one so future `git
+push`/`git pull` on this branch don't need any arguments):
+
+```bash
+git push -u origin task1-mix-repository
+```
+
+**Open a Pull Request.** Either follow the URL that `git push` printed
+after your first push, or use the GitHub CLI already set up for this repo:
+
+```bash
+gh pr create --title "Task 1: real IMixRepository" --body "Closes #1"
+```
+
+Writing `Closes #1` in the PR body auto-closes that issue the moment the PR
+merges — no manual bookkeeping.
+
+**Merge it.** Once you've looked over the diff on GitHub (or just decide
+it's ready, since you're a team of one right now):
+
+```bash
+gh pr merge --merge     # or --squash, see below
+```
+
+**Get the merged change back onto your local `main`**, and clean up the
+now-merged branch:
+
+```bash
+git checkout main
+git pull
+git branch -d task1-mix-repository          # delete local branch
+git push origin --delete task1-mix-repository  # delete remote branch (optional)
+```
+
+### `--merge` vs. `--squash` vs. `--rebase`
+
+`gh pr merge` (and GitHub's UI) offer three strategies:
+
+| Strategy | What `main`'s history looks like after | When to use it |
+|---|---|---|
+| **Merge commit** (`--merge`) | All your branch's individual commits appear on `main`, plus one extra "merge" commit tying them together. | You want to preserve the exact step-by-step history of how you got there. |
+| **Squash** (`--squash`) | All your branch's commits get flattened into a single commit on `main`. | You made a bunch of messy "wip", "fix typo", "actually fix it" commits and only the *end result* is worth keeping — this is usually the right default for a solo project. |
+| **Rebase** (`--rebase`) | Your commits are replayed one-by-one on top of `main`, with no merge commit at all — history looks perfectly linear. | You care about a clean linear history and your commits were already well-organized. |
+
+For this project, **squash merging** is the sane default — you'll have
+plenty of "oops" commits while learning C#/MAUI syntax, and nobody needs to
+see those preserved forever in `main`'s history.
+
+### If two branches touched the same lines: merge conflicts
+
+If `main` moved on while your branch was open (say, you merged Task 1's
+branch, then came back to an older branch that also touched
+`MauiProgram.cs`), Git won't be able to auto-combine both versions of that
+file. You'll see something like this when you try to merge or rebase:
+
+```
+<<<<<<< HEAD
+builder.Services.AddSingleton<IMixRepository, InMemoryMixRepository>();
+=======
+builder.Services.AddSingleton<ITrackRepository, InMemoryTrackRepository>();
+>>>>>>> task1-mix-repository
+```
+
+Everything between `<<<<<<< HEAD` and `=======` is what's already on the
+branch you're merging *into*; everything between `=======` and `>>>>>>>` is
+what's coming in from the *other* branch. Open the file, decide what the
+combined result should actually be (often it's "keep both lines"), delete
+the `<<<<<<<`/`=======`/`>>>>>>>` markers by hand, save, then:
+
+```bash
+git add MauiProgram.cs
+git commit          # finishes the merge — Git already knows this resolves the conflict
+```
+
+There's no magic command that resolves conflicts for you — reading the
+markers and deciding what's correct is the whole job. The upshot of small,
+frequent PRs (like one per issue above) is that conflicts stay small and
+rare instead of becoming a 20-file nightmare.
+
+### Quick reference
+
+```bash
+git checkout -b <branch-name>              # new branch from current one
+git push -u origin <branch-name>           # first push of a new branch
+git push                                    # every push after that
+git pull                                    # bring your branch up to date with its remote
+gh pr create                                # open a PR for the current branch
+gh pr merge --squash                        # merge it in, flattened to one commit
+git checkout main && git pull               # get the merged result locally
+git branch -d <branch-name>                 # delete the local branch once merged
+```
