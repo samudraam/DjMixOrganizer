@@ -15,6 +15,7 @@ in an interview.
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
              xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
+             xmlns:controls="clr-namespace:DjMixOrganizer.App.Controls"
              x:Class="DjMixOrganizer.App.Views.LibraryPage"
              x:DataType="viewmodels:LibraryViewModel"
              Shell.NavBarIsVisible="False">
@@ -31,71 +32,11 @@ in an interview.
               Padding="16"
               ColumnSpacing="16">
 
-            <!-- Left: "Your Tracks" sidebar -->
-            <Border Grid.Column="0" Style="{StaticResource PanelCard}">
-                <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
-
-                    <Label Grid.Row="0"
-                           Text="Your Tracks"
-                           Style="{StaticResource SectionTitle}"
-                           FontSize="18"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center" />
-
-                    <HorizontalStackLayout Grid.Row="1" Spacing="8">
-                        <Border BackgroundColor="{StaticResource ChipBpm}"
-                                StrokeShape="RoundRectangle 12"
-                                Stroke="Transparent"
-                                Padding="10,4">
-                            <Label Text="BPM &#8593;" Style="{StaticResource ChipLabel}" />
-                        </Border>
-                        <Border BackgroundColor="{StaticResource ChipPitch}"
-                                StrokeShape="RoundRectangle 12"
-                                Stroke="Transparent"
-                                Padding="10,4">
-                            <Label Text="PITCH C" Style="{StaticResource ChipLabel}" />
-                        </Border>
-                    </HorizontalStackLayout>
-
-                    <CollectionView Grid.Row="2"
-                                     ItemsSource="{Binding Tracks}"
-                                     SelectionMode="Single"
-                                     SelectedItem="{Binding SelectedTrack}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Track">
-                                <Grid ColumnDefinitions="40,*" Padding="0,6" ColumnSpacing="8">
-                                    <Border Grid.Column="0"
-                                            BackgroundColor="{StaticResource SurfacePanelDark}"
-                                            StrokeShape="RoundRectangle 6"
-                                            Stroke="Transparent"
-                                            HeightRequest="40"
-                                            WidthRequest="40"
-                                            Padding="0">
-                                        <Label Text="&#9835;"
-                                               HorizontalOptions="Center"
-                                               VerticalOptions="Center"
-                                               TextColor="{StaticResource Gray200}" />
-                                    </Border>
-                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                        <Label Text="{Binding Title}" Style="{StaticResource ItemTitle}" FontSize="13" LineBreakMode="TailTruncation" />
-                                        <HorizontalStackLayout Spacing="10">
-                                            <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
-                                            <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
-                                        </HorizontalStackLayout>
-                                    </VerticalStackLayout>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <Label Grid.Row="3"
-                           Text="UPLOAD A SONG TO LIBRARY"
-                           FontSize="11"
-                           TextColor="{StaticResource Gray300}"
-                           HorizontalOptions="Center" />
-
-                </Grid>
-            </Border>
+            <!-- Left: "Your Tracks" sidebar — shared with MixDetailPage, see
+                 Controls/TrackListPanel.xaml. -->
+            <controls:TrackListPanel Grid.Column="0"
+                                      TracksSource="{Binding Tracks}"
+                                      SelectedTrack="{Binding SelectedTrack}" />
 
             <!-- Right: selected-track detail panel -->
             <Border Grid.Column="1" Style="{StaticResource PanelCard}">
