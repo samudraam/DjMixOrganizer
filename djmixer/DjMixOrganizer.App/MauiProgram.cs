@@ -17,6 +17,14 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+
+				// Jura: titles/headings only (see Styles.xaml's ScreenTitle
+				// and Section/ItemTitle styles). BPM/pitch/info/chip text
+				// stays OpenSans.
+				fonts.AddFont("JuraDemiBold.ttf", "JuraDemiBold");
+				fonts.AddFont("JuraMedium.ttf", "JuraMedium");
+				fonts.AddFont("JuraBook.ttf", "JuraBook");
+				fonts.AddFont("JuraLight.ttf", "JuraLight");
 			});
 
 		// Composition root: this is the one place App is allowed to reference
