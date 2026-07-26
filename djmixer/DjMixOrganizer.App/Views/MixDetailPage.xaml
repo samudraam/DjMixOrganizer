@@ -42,7 +42,7 @@ something you can actually drag. Three things worth being able to explain:
 
     <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
-        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="60,*,60">
+        <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}" ColumnDefinitions="60,*,90">
             <Button Grid.Column="0"
                     Text="&#8592;"
                     FontSize="22"
@@ -51,7 +51,25 @@ something you can actually drag. Three things worth being able to explain:
                     Clicked="OnBackClicked"
                     HorizontalOptions="Start"
                     Margin="12,0,0,0" />
-            <Label Grid.Column="1" Text="Mix" Style="{StaticResource ScreenTitle}" />
+
+            <!-- Was a static "Mix" Label — there was no title input
+                 anywhere in the app, and Mix.Title is required, so Save
+                 needs a source for it. ScreenTitle is TargetType="Label",
+                 so its font tokens are set manually here instead. -->
+            <Entry Grid.Column="1"
+                   Text="{Binding MixTitle}"
+                   Placeholder="Mix title"
+                   FontFamily="JuraDemiBold"
+                   FontSize="22"
+                   TextColor="{StaticResource Gray600}"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center" />
+
+            <Button Grid.Column="2"
+                    Text="Save"
+                    Command="{Binding SaveMixCommand}"
+                    HorizontalOptions="End"
+                    Margin="0,0,12,0" />
         </Grid>
 
         <Grid Grid.Row="1"
@@ -104,12 +122,35 @@ something you can actually drag. Three things worth being able to explain:
 
                                 <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
 
-                                    <Label Grid.Row="0"
-                                           Text="{Binding Track.Title}"
-                                           Style="{StaticResource ItemTitle}"
-                                           TextColor="White"
-                                           FontSize="14"
-                                           LineBreakMode="TailTruncation" />
+                                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding Track.Title}"
+                                               Style="{StaticResource ItemTitle}"
+                                               TextColor="White"
+                                               FontSize="14"
+                                               LineBreakMode="TailTruncation" />
+
+                                        <!-- Removes this node from the canvas. Bound to the
+                                             page's ViewModel (not this DataTemplate's own
+                                             TrackNode context), same cross-scope pattern the
+                                             waveform bars below use to reach back out to
+                                             AccentColorHex. -->
+                                        <Button Grid.Column="1"
+                                                Text="&#215;"
+                                                FontSize="14"
+                                                TextColor="White"
+                                                BackgroundColor="Transparent"
+                                                Padding="0"
+                                                CornerRadius="10"
+                                                HeightRequest="20"
+                                                WidthRequest="20"
+                                                MinimumHeightRequest="20"
+                                                MinimumWidthRequest="20"
+                                                VerticalOptions="Start"
+                                                HorizontalOptions="End"
+                                                Command="{Binding BindingContext.RemoveNodeCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                CommandParameter="{Binding .}" />
+                                    </Grid>
 
                                     <!-- Static waveform bars — placeholder,
                                          not real audio analysis (see

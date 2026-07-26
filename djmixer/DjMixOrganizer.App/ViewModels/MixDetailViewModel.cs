@@ -54,6 +54,9 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
     private bool _isNewMix = true;
 
     [ObservableProperty]
+    private string _mixTitle = string.Empty;
+
+    [ObservableProperty]
     private ObservableCollection<TrackNode> _nodes = [];
 
     [ObservableProperty]
@@ -97,6 +100,45 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
             Position = new CanvasPosition(20 + (index % 2) * 260, 20 + (index / 2) * 280),
             AccentColorHex = NodeColorPalette[index % NodeColorPalette.Length],
         });
+    }
+
+    [RelayCommand]
+    private void RemoveNode(TrackNode node)
+    {
+        Nodes.Remove(node);
+    }
+
+    // Sequential StartTime for now: track N+1 starts the instant track N
+    // ends, same scheme InMemoryMixRepository's seed data already uses.
+    // Letting tracks play simultaneously (a stem-layering/mashup mix) is a
+    // separate, larger follow-up — it needs a UI for picking which section
+    // of a track's audio plays, and a change to Mix.AddTrack's current
+    // "no duplicate StartTime" invariant.
+    [RelayCommand]
+    private async Task SaveMixAsync()
+    {
+        if (string.IsNullOrWhiteSpace(MixTitle))
+        {
+            return; // Title is required — no validation UI yet, so just no-op
+        }
+
+        var mix = new Mix
+        {
+            Id = Mix?.Id ?? Guid.NewGuid(),
+            Title = MixTitle,
+            RecordedDate = Mix?.RecordedDate ?? DateOnly.FromDateTime(DateTime.Today),
+        };
+
+        var cumulativeStart = TimeSpan.Zero;
+        foreach (var node in Nodes)
+        {
+            mix.AddTrack(node.Track, cumulativeStart);
+            cumulativeStart += node.Track.Duration;
+        }
+
+        await _mixRepository.SaveAsync(mix);
+        Mix = mix;
+        IsNewMix = false;
     }
 
     [RelayCommand]
@@ -144,6 +186,8 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
         {
             return;
         }
+
+        MixTitle = Mix.Title;
 
         var seeded = new List<TrackNode>();
         for (var i = 0; i < Mix.Tracks.Count; i++)

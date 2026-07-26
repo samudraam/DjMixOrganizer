@@ -1,7 +1,9 @@
 ﻿using DjMixOrganizer.App.ViewModels;
 using DjMixOrganizer.App.Views;
 using DjMixOrganizer.Core.Repositories;
+using DjMixOrganizer.Data;
 using DjMixOrganizer.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace DjMixOrganizer.App;
@@ -29,10 +31,21 @@ public static class MauiProgram
 
 		// Composition root: this is the one place App is allowed to reference
 		// Data's concrete classes directly. Everything else only ever sees
-		// IMixRepository. AddSingleton is fine here — it's just a list in
-		// memory, no reason to recreate it per request.
-		builder.Services.AddSingleton<IMixRepository, InMemoryMixRepository>();
-		builder.Services.AddSingleton<ITrackRepository, InMemoryTrackRepository>();
+		// IMixRepository/ITrackRepository.
+		//
+		// AddDbContextFactory (not AddDbContext) because DbContext isn't
+		// thread-safe and isn't meant to live for the app's whole lifetime —
+		// the factory hands out a fresh, short-lived DjMixDbContext per
+		// operation instead (see MySqlMixRepository/MySqlTrackRepository).
+		// The server version is hardcoded rather than using
+		// ServerVersion.AutoDetect(...), which would open a blocking network
+		// connection during app startup just to ask MySQL its own version.
+		var connectionString = DjMixConnectionString.FromEnvironment();
+		builder.Services.AddDbContextFactory<DjMixDbContext>(options =>
+			options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 46))));
+
+		builder.Services.AddSingleton<IMixRepository, MySqlMixRepository>();
+		builder.Services.AddSingleton<ITrackRepository, MySqlTrackRepository>();
 
 		// Registering these with the DI container is what lets a page's
 		// constructor ask for its ViewModel and have MAUI hand it one,
