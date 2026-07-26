@@ -1,5 +1,6 @@
 ﻿using DjMixOrganizer.App.ViewModels;
 using DjMixOrganizer.App.Views;
+using DjMixOrganizer.App.Services;
 using DjMixOrganizer.Core.Repositories;
 using DjMixOrganizer.Data;
 using DjMixOrganizer.Data.Repositories;
@@ -64,18 +65,23 @@ public static class MauiProgram
 		// connection during app startup just to ask MySQL its own version.
 		var connectionString = DjMixConnectionString.FromEnvironment();
 		builder.Services.AddDbContextFactory<DjMixDbContext>(options =>
-			options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 46))));
+			options.UseMySql(
+				connectionString,
+				new MySqlServerVersion(new Version(8, 0, 46)),
+				mySql => mySql.CommandTimeout(15)));
 
 		builder.Services.AddSingleton<IMixRepository, MySqlMixRepository>();
 		builder.Services.AddSingleton<ITrackRepository, MySqlTrackRepository>();
+		builder.Services.AddSingleton<IAudioFilePicker, MauiAudioFilePicker>();
 
-		// Registering these with the DI container is what lets a page's
-		// constructor ask for its ViewModel and have MAUI hand it one,
-		// instead of the page having to `new SomeViewModel()` itself.
+		// LibraryViewModel is Singleton on purpose: FilePicker sends the page
+		// through Disappear/Appear (and Shell may rebuild the view). A Transient
+		// VM would throw away IsAddingSong / form fields mid-browse.
+		builder.Services.AddSingleton<LibraryViewModel>();
+		builder.Services.AddTransient<LibraryPage>();
+
 		builder.Services.AddTransient<MixListViewModel>();
 		builder.Services.AddTransient<MixListPage>();
-		builder.Services.AddTransient<LibraryViewModel>();
-		builder.Services.AddTransient<LibraryPage>();
 		builder.Services.AddTransient<MixDetailViewModel>();
 		builder.Services.AddTransient<MixDetailPage>();
 
@@ -83,7 +89,29 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+		var app = builder.Build();
+
+		// Apply pending EF migrations at startup so schema (e.g. CamelotKey →
+		// MusicalKey) cannot drift from the model. Without this, SaveChanges
+		// fails with a vague "error saving entity changes" when a migration
+		// was added but never applied to the Docker MySQL.
+		Task.Run(async () =>
+		{
+			try
+			{
+				await using var scope = app.Services.CreateAsyncScope();
+				var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<DjMixDbContext>>();
+				await using var db = await factory.CreateDbContextAsync();
+				await db.Database.MigrateAsync();
+				System.Diagnostics.Debug.WriteLine("[MauiProgram] Database migrations applied.");
+			}
+			catch (Exception ex)
+			{
+				System.Diagnostics.Debug.WriteLine($"[MauiProgram] MigrateAsync failed: {ex}");
+			}
+		}).GetAwaiter().GetResult();
+
+		return app;
 	}
 
 	private static async Task LoadBundledEnvVars()

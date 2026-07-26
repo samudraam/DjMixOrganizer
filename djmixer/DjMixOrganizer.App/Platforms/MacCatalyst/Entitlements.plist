@@ -9,6 +9,14 @@
         <!-- When App Sandbox is enabled, this value is required to open outgoing network connections. -->
         <key>com.apple.security.network.client</key>
         <true/>
+        <!-- Sandboxed Mac Catalyst apps need explicit permission before a
+             system picker can expose files outside the app container. -->
+        <key>com.apple.security.files.user-selected.read-only</key>
+        <true/>
+        <key>com.apple.security.assets.music.read-only</key>
+        <true/>
+        <key>com.apple.security.files.downloads.read-only</key>
+        <true/>
     </dict>
 </plist>
 

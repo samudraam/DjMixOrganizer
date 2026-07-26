@@ -52,7 +52,7 @@ public class TrackNode : INotifyPropertyChanged
         set { _bpm = value; OnPropertyChanged(); }
     }
 
-    private string _key = "8A";
+    private string _key = "C";
     public string Key
     {
         get => _key;

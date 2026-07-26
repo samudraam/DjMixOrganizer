@@ -28,26 +28,30 @@ point *inward*. The UI depends on Core; Core depends on nothing. This matters
 for the interview for two reasons:
 
 1. It's exactly the kind of separation you'll be expected to *read and
-   navigate* in an existing embedded/vehicle-control codebase — business
+  navigate* in an existing embedded/vehicle-control codebase — business
    logic that has to run correctly regardless of which UI or hardware layer
    sits on top of it.
 2. It lets us swap the MAUI app for, say, a console tool or a background
-   service later without touching business logic — the same reason real
+  service later without touching business logic — the same reason real
    systems separate a "controller" layer from the physical I/O layer.
+
+
 
 ## MAUI ↔ Flutter, conceptually
 
 Since Flutter/React is the named comparison point in the posting, here's the
 direct mapping so you can speak to both fluently:
 
-| Concept | Flutter | .NET MAUI |
-|---|---|---|
-| UI description | Widget tree (Dart) | XAML markup (declarative, like Widget tree) |
-| Reactive state | `StatefulWidget` + `setState`, or Provider/Bloc | MVVM: `ObservableObject` + data-binding |
-| Cross-platform target | Compiles to native ARM via Dart AOT | Compiles to native via .NET NativeAOT/Mono |
-| Platform-specific code | `Platform.isAndroid` checks, platform channels | `#if ANDROID` partial classes, `DependencyService` |
-| Hot reload | Yes | Yes |
-| State management library | Provider, Riverpod, Bloc | CommunityToolkit.Mvvm (`[ObservableProperty]`, `[RelayCommand]`) |
+
+| Concept                  | Flutter                                         | .NET MAUI                                                        |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------------------------------- |
+| UI description           | Widget tree (Dart)                              | XAML markup (declarative, like Widget tree)                      |
+| Reactive state           | `StatefulWidget` + `setState`, or Provider/Bloc | MVVM: `ObservableObject` + data-binding                          |
+| Cross-platform target    | Compiles to native ARM via Dart AOT             | Compiles to native via .NET NativeAOT/Mono                       |
+| Platform-specific code   | `Platform.isAndroid` checks, platform channels  | `#if ANDROID` partial classes, `DependencyService`               |
+| Hot reload               | Yes                                             | Yes                                                              |
+| State management library | Provider, Riverpod, Bloc                        | CommunityToolkit.Mvvm (`[ObservableProperty]`, `[RelayCommand]`) |
+
 
 The mental model is identical: **declarative UI + a reactive state layer +
 platform-specific escape hatches when you need real hardware access**
@@ -59,29 +63,29 @@ platform.
 ## Phase plan
 
 1. ✅ **Solution + domain models** — Track, Mix, Playlist, Tag exist in
-   `DjMixOrganizer.Core` with real invariants (no duplicate start times,
+  `DjMixOrganizer.Core` with real invariants (no duplicate start times,
    encapsulated collections). Get comfortable with C# records, nullable
    reference types, and why we keep this project dependency-free.
 2. ✅ **MVVM + data-binding** — `MixListViewModel`/`MixListPage` are wired
-   through DI (`MauiProgram.cs`), and `LoadMixesCommand` calls a real
+  through DI (`MauiProgram.cs`), and `LoadMixesCommand` calls a real
    `IMixRepository` (`InMemoryMixRepository` for now) instead of stubbing
    with `Task.Delay`.
 3. ⬜ **ID3 tag parsing** — reading raw bytes from an mp3 file header by hand
-   before reaching for a library, so you understand the binary format.
+  before reaching for a library, so you understand the binary format.
    `DjMixOrganizer.Data` currently has no code at all — just a `.csproj`
    referencing Core.
 4. ⬜ **Concurrency** — `async`/`await`, `IProgress<T>`, `CancellationToken`
-   for scanning a folder of mixes without freezing the UI. Blocked on Phase
+  for scanning a folder of mixes without freezing the UI. Blocked on Phase
    3 (needs something to scan) and an `IMixRepository` interface in Core.
 5. ⬜ **FFmpeg interop** — `Process.Start` to shell out for mp3 clip export.
-   Same shape as talking to an external tool/daemon over a process boundary.
+  Same shape as talking to an external tool/daemon over a process boundary.
 6. ⬜ **Docker** — containerize a small companion service (e.g. a headless
-   "library scanner" API) so you get real `Dockerfile` reps even though the
+  "library scanner" API) so you get real `Dockerfile` reps even though the
    MAUI client itself isn't containerized.
 7. ⬜ **GitHub Actions** — CI pipeline: restore, build, test on every push.
-   No workflow files exist in the repo yet.
+  No workflow files exist in the repo yet.
 8. 🔶 **Android target + kiosk discussion** — iOS builds and runs today (see
-   "How to Run" above). Android is untested, and the kiosk/`LockTask`
+  "How to Run" above). Android is untested, and the kiosk/`LockTask`
    discussion hasn't started.
 
 Two loose ends worth cleaning up independent of what's next: `MainPage.xaml`
@@ -90,9 +94,6 @@ routes straight to `MixListPage` and never references `MainPage`, so it's
 dead code. And `DjMixOrganizer.Tests` has exactly one empty test method.
 
 ## Getting this running on your machine
-
-This sandbox can't run MAUI builds (no Android/iOS SDKs, no NuGet access),
-so run these locally:
 
 ```bash
 # Install the MAUI workload (one-time)
@@ -122,16 +123,20 @@ noted at the top of each file) and `dotnet build`.
 
 ## How to Run
 
-```bash
+Mine:
 
+```bash
+# mac catalyst
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-maccatalyst
 open "$(pwd)/DjMixOrganizer.App/bin/Debug/net10.0-maccatalyst/maccatalyst-arm64/DjMixOrganizer.App.app"
 
+# ios
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 open -a Simulator
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
 
+# ios build and run
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-ios -r iossimulator-arm64
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
@@ -152,12 +157,12 @@ pinned to `9.0.0`) with the `Pomelo.EntityFrameworkCore.MySql` provider — see
 directly on your machine, it runs in Docker so it's disposable and doesn't
 touch anything system-wide.
 
-**Why `docker-compose.yml` instead of a bare `docker run` command:** the
+**Why** `docker-compose.yml` **instead of a bare** `docker run` **command:** the
 compose file is checked into git, so "how do I start the database" is
 answered by reading a tracked file, not by remembering a long flag list.
 
-**Why a `.env` file instead of hardcoding the password in
-`docker-compose.yml`:** `docker-compose.yml` has no secrets in it and is
+**Why a** `.env` **file instead of hardcoding the password in**
+`docker-compose.yml`**:** `docker-compose.yml` has no secrets in it and is
 safe to commit; `.env` holds the actual generated password and is
 git-ignored (see the repo-root `.gitignore`) so it never ends up on GitHub.
 `.env.example` is the committed template showing what keys `.env` needs,
@@ -170,6 +175,8 @@ with placeholder values.
 # (Already done on this machine — .env exists with generated passwords.)
 cp .env.example .env
 ```
+
+
 
 ### Everyday commands
 
@@ -186,6 +193,8 @@ docker compose stop
 # Stop AND permanently delete all data (careful — drops every table)
 docker compose down -v
 ```
+
+
 
 ### Connecting
 
@@ -210,6 +219,8 @@ in progress) is built from these same `.env` values —
 
 ## System diagrams (current state)
 
+
+
 ### Project dependencies
 
 ```mermaid
@@ -227,6 +238,10 @@ graph TD;
     classDef highlight fill:#f9f,stroke:#333,stroke-width:2px;
     class Core highlight;
 ```
+
+
+
+
 
 ### Domain model
 
@@ -279,6 +294,8 @@ classDiagram
     Playlist "1" *-- "many" Tag
 ```
 
+
+
 `Playlist` holds `List<Guid>`, not `List<Mix>` — loading a playlist's name
 for a list screen shouldn't force-load every mix and every track inside it.
 `Track` is a class (mutable identity — you re-tag it over time);
@@ -305,9 +322,11 @@ sequenceDiagram
     Page-->>You: spinner hides, list stays empty
 ```
 
+
+
 A rendered, styled version of these diagrams plus the notes below is also
 available as a standalone page:
-https://claude.ai/code/artifact/a2365250-ef4b-40e3-9d76-2b1f67d6908b
+[https://claude.ai/code/artifact/a2365250-ef4b-40e3-9d76-2b1f67d6908b](https://claude.ai/code/artifact/a2365250-ef4b-40e3-9d76-2b1f67d6908b)
 
 ## Design notes: node-based mix editor (brainstorm, not a spec)
 
@@ -337,6 +356,8 @@ graph LR
     end
     M1 -.->|open| MixView
 ```
+
+
 
 **The modeling question this raises:** BPM, key, and cue points are
 properties of the *track itself* — true no matter which mix it appears in.
@@ -404,6 +425,8 @@ classDiagram
     MixTransition --> TrackNode
 ```
 
+
+
 `MixCanvas` is deliberately separate from `Mix` — canvas layout (node
 positions) is presentation state, not domain logic, same reasoning as why
 `Playlist` holds Guids instead of objects.
@@ -438,13 +461,15 @@ for audio you actually hold the bytes for, which in this app means Phase 3
 "DJ Pro" software generally (Serato, rekordbox, Engine DJ, djay Pro)
 converges on the same handful of fields, but stores them differently:
 
-| Field | Where it usually lives | Notes |
-|---|---|---|
-| BPM | ID3v2 `TBPM` frame | Universally read by every app — the safest field to write. |
-| Key | ID3v2 `TKEY` frame | Camelot ("8A") vs. Open Key ("6m") is a per-app display setting, not a different tag — pick one and be consistent. |
+
+| Field                 | Where it usually lives      | Notes                                                                                                                        |
+| --------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| BPM                   | ID3v2 `TBPM` frame          | Universally read by every app — the safest field to write.                                                                   |
+| Key                   | ID3v2 `TKEY` frame          | Camelot ("8A") vs. Open Key ("6m") is a per-app display setting, not a different tag — pick one and be consistent.           |
 | Cue points / hot cues | App-proprietary binary tags | Serato writes custom `GEOB` frames ("Serato Markers2") — reverse-engineered, undocumented, and fragile to write to directly. |
-| Beatgrid | App-proprietary | Engine DJ keeps its own SQLite database for USB export; not a tag on the file at all. |
-| Playlists/crates | rekordbox XML | The one format with the broadest cross-app import support if the goal is moving organized sets between tools. |
+| Beatgrid              | App-proprietary             | Engine DJ keeps its own SQLite database for USB export; not a tag on the file at all.                                        |
+| Playlists/crates      | rekordbox XML               | The one format with the broadest cross-app import support if the goal is moving organized sets between tools.                |
+
 
 Recommendation, given the interop is genuinely fragile: write standard
 `TBPM`/`TKEY` ID3v2 tags for baseline compatibility everywhere, and if you
@@ -472,7 +497,7 @@ edit it directly for real work — instead:
 2. Commit your changes on that branch.
 3. Push the branch to GitHub.
 4. Open a Pull Request (PR) — this is where the *diff* gets reviewed before
-   it becomes part of `main`.
+  it becomes part of `main`.
 5. Merge the PR. `main` now has your change; your branch can be deleted.
 
 The branch is a scratch space — as many messy, half-working commits as you
@@ -506,8 +531,7 @@ Prefer several small, focused commits over one giant one — each commit
 should be a single coherent step, not "end of day checkpoint."
 
 **Push the branch to GitHub** (`-u` only needed the *first* time you push
-this branch — it links your local branch to a remote one so future `git
-push`/`git pull` on this branch don't need any arguments):
+this branch — it links your local branch to a remote one so future `git push`/`git pull` on this branch don't need any arguments):
 
 ```bash
 git push -u origin task1-mix-repository
@@ -530,7 +554,7 @@ it's ready, since you're a team of one right now):
 gh pr merge --merge     # or --squash, see below
 ```
 
-**Get the merged change back onto your local `main`**, and clean up the
+**Get the merged change back onto your local** `main`, and clean up the
 now-merged branch:
 
 ```bash
@@ -540,15 +564,19 @@ git branch -d task1-mix-repository          # delete local branch
 git push origin --delete task1-mix-repository  # delete remote branch (optional)
 ```
 
+
+
 ### `--merge` vs. `--squash` vs. `--rebase`
 
 `gh pr merge` (and GitHub's UI) offer three strategies:
 
-| Strategy | What `main`'s history looks like after | When to use it |
-|---|---|---|
-| **Merge commit** (`--merge`) | All your branch's individual commits appear on `main`, plus one extra "merge" commit tying them together. | You want to preserve the exact step-by-step history of how you got there. |
-| **Squash** (`--squash`) | All your branch's commits get flattened into a single commit on `main`. | You made a bunch of messy "wip", "fix typo", "actually fix it" commits and only the *end result* is worth keeping — this is usually the right default for a solo project. |
-| **Rebase** (`--rebase`) | Your commits are replayed one-by-one on top of `main`, with no merge commit at all — history looks perfectly linear. | You care about a clean linear history and your commits were already well-organized. |
+
+| Strategy                     | What `main`'s history looks like after                                                                               | When to use it                                                                                                                                                            |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Merge commit** (`--merge`) | All your branch's individual commits appear on `main`, plus one extra "merge" commit tying them together.            | You want to preserve the exact step-by-step history of how you got there.                                                                                                 |
+| **Squash** (`--squash`)      | All your branch's commits get flattened into a single commit on `main`.                                              | You made a bunch of messy "wip", "fix typo", "actually fix it" commits and only the *end result* is worth keeping — this is usually the right default for a solo project. |
+| **Rebase** (`--rebase`)      | Your commits are replayed one-by-one on top of `main`, with no merge commit at all — history looks perfectly linear. | You care about a clean linear history and your commits were already well-organized.                                                                                       |
+
 
 For this project, **squash merging** is the sane default — you'll have
 plenty of "oops" commits while learning C#/MAUI syntax, and nobody needs to
@@ -597,3 +625,4 @@ gh pr merge --squash                        # merge it in, flattened to one comm
 git checkout main && git pull               # get the merged result locally
 git branch -d <branch-name>                 # delete the local branch once merged
 ```
+
