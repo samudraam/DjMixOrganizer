@@ -126,6 +126,11 @@ noted at the top of each file) and `dotnet build`.
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 open -a Simulator
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
+
+cd /Users/RamyaSamudrala/Developer/music/djmixer
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-ios -r iossimulator-arm64
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
+
 ```
 
 If `actool` fails with "No simulator runtime version ... available to use

@@ -31,6 +31,7 @@
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DjMixOrganizer.App.Views;
 using DjMixOrganizer.Core.Models;
 using DjMixOrganizer.Core.Repositories;
 
@@ -67,6 +68,11 @@ public partial class MixListViewModel : ObservableObject
     [RelayCommand]
     private async Task LoadMixesAsync()
     {
+        if (Mixes.Count > 0)
+        {
+            return; // already loaded — OnAppearing can fire more than once
+        }
+
         IsLoading = true;
         try
         {
@@ -77,5 +83,23 @@ public partial class MixListViewModel : ObservableObject
         {
             IsLoading = false;
         }
+    }
+
+    // Navigating from a ViewModel via Shell.Current (rather than an
+    // injected INavigationService abstraction) is a pragmatic call, not a
+    // "correct" one — a larger app would abstract this for testability.
+    // For this app's size it's the standard, well-documented MAUI Shell
+    // pattern, and adding an interface for one call site would be exactly
+    // the kind of speculative abstraction the rest of this codebase avoids.
+    [RelayCommand]
+    private static async Task CreateMixAsync()
+    {
+        await Shell.Current.GoToAsync(nameof(MixDetailPage));
+    }
+
+    [RelayCommand]
+    private static async Task OpenMixAsync(Mix mix)
+    {
+        await Shell.Current.GoToAsync($"{nameof(MixDetailPage)}?mixId={mix.Id}");
     }
 }
