@@ -6,3 +6,6 @@
 [Bb]in/
 [Oo]bj/
 *.user
+
+# Local secrets (DB passwords, connection strings) — never commit these
+.env

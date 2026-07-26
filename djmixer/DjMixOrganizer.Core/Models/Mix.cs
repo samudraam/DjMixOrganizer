@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace DjMixOrganizer.Core.Models;
@@ -32,15 +31,37 @@ public class Mix
     public DateOnly RecordedDate { get; set; }
 
     // Backing field is a private List<T> — the mutable, real collection.
-    private readonly List<MixTrackEntry> _tracks = [];
+    private readonly List<MixTrackEntry> _tracks;
 
-    // Public surface is a ReadOnlyCollection<T> wrapping the same backing
-    // list. Callers can enumerate it, but can't call .Add()/.Remove() on it
-    // directly — they have to go through the methods below. This is the
-    // "encapsulated collection" pattern: cheap to write, and it closes off
-    // an entire category of bugs where some unrelated code silently
-    // mutates your aggregate's internal state.
-    public ReadOnlyCollection<MixTrackEntry> Tracks => _tracks.AsReadOnly();
+    public Mix()
+    {
+        _tracks = [];
+    }
+
+    // EF Core uses this constructor (instead of the parameterless one above)
+    // when materializing a Mix from a database query, since it's the only
+    // way to hand back a Mix with its tracks already populated — Tracks has
+    // no public setter. App code should keep using `new Mix { ... }`, which
+    // always goes through the parameterless constructor.
+    private Mix(List<MixTrackEntry> tracks)
+    {
+        _tracks = tracks;
+    }
+
+    // Public surface is the IReadOnlyList<T> interface, satisfied directly
+    // by the backing List<T> — List<T> already implements IReadOnlyList<T>,
+    // so no wrapping/allocation is needed. Callers can enumerate and index
+    // into it, but can't call .Add()/.Remove(); they have to go through the
+    // methods below. This is the "encapsulated collection" pattern: cheap to
+    // write, and it closes off an entire category of bugs where some
+    // unrelated code silently mutates your aggregate's internal state.
+    //
+    // Deliberately IReadOnlyList<T>, not the concrete ReadOnlyCollection<T>
+    // class: EF Core's change-tracking snapshot machinery needs to treat a
+    // value of the *field's* type (List<MixTrackEntry>) as a value of the
+    // *property's* declared type, and List<T> converts to the IReadOnlyList<T>
+    // interface for free, but not to the unrelated ReadOnlyCollection<T> class.
+    public IReadOnlyList<MixTrackEntry> Tracks => _tracks;
 
     public TimeSpan TotalDuration => TimeSpan.FromTicks(_tracks.Sum(t => t.Track.Duration.Ticks));
 
@@ -72,4 +93,12 @@ public class Mix
 // Track and StartTime ARE the same entry. Compare this reasoning to why
 // Track itself is a class (see Track.cs) — same question, different answer,
 // because the underlying thing being modeled is different.
-public record MixTrackEntry(Track Track, TimeSpan StartTime);
+public record MixTrackEntry(Track Track, TimeSpan StartTime)
+{
+    // EF Core materializes a MixTrackEntry through this constructor instead
+    // of the primary one above — it will bind StartTime (a plain value) but
+    // refuses to bind Track through a constructor, since the related Track
+    // row may not be loaded yet at that point. EF sets Track via reflection
+    // right afterward, once it is loaded.
+    private MixTrackEntry(TimeSpan startTime) : this(null!, startTime) { }
+}

@@ -43,4 +43,11 @@ public class InMemoryMixRepository : IMixRepository
     {
         return Task.FromResult<IReadOnlyList<Mix>>(_seedData);
     }
+
+    public Task SaveAsync(Mix mix)
+    {
+        _seedData.RemoveAll(m => m.Id == mix.Id);
+        _seedData.Add(mix);
+        return Task.CompletedTask;
+    }
 }

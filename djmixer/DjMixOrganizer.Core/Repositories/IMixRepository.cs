@@ -5,4 +5,6 @@ namespace DjMixOrganizer.Core.Repositories;
 public interface IMixRepository
 {
     Task<IReadOnlyList<Mix>> GetAllAsync();
+
+    Task SaveAsync(Mix mix);
 }

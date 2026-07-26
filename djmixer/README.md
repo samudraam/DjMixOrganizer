@@ -123,15 +123,90 @@ noted at the top of each file) and `dotnet build`.
 ## How to Run
 
 ```bash
+
+cd /Users/RamyaSamudrala/Developer/music/djmixer
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-maccatalyst
+open "$(pwd)/DjMixOrganizer.App/bin/Debug/net10.0-maccatalyst/maccatalyst-arm64/DjMixOrganizer.App.app"
+
 cd /Users/RamyaSamudrala/Developer/music/djmixer
 open -a Simulator
 dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
+
+cd /Users/RamyaSamudrala/Developer/music/djmixer
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -f net10.0-ios -r iossimulator-arm64
+dotnet build DjMixOrganizer.App/DjMixOrganizer.App.csproj -t:Run -f net10.0-ios -r iossimulator-arm64
+
 ```
 
 If `actool` fails with "No simulator runtime version ... available to use
 with iphonesimulator SDK version", Xcode's bundled SDK is newer than any
 installed simulator runtime — fix once with:
 `xcodebuild -downloadPlatform iOS`.
+
+## MySQL (local dev database, via Docker)
+
+The app is migrating off `InMemoryMixRepository`/`InMemoryTrackRepository`
+onto a real MySQL database, using EF Core (`Microsoft.EntityFrameworkCore.Design`,
+pinned to `9.0.0`) with the `Pomelo.EntityFrameworkCore.MySql` provider — see
+`DjMixOrganizer.Data/DjMixDbContext.cs`. Rather than installing MySQL
+directly on your machine, it runs in Docker so it's disposable and doesn't
+touch anything system-wide.
+
+**Why `docker-compose.yml` instead of a bare `docker run` command:** the
+compose file is checked into git, so "how do I start the database" is
+answered by reading a tracked file, not by remembering a long flag list.
+
+**Why a `.env` file instead of hardcoding the password in
+`docker-compose.yml`:** `docker-compose.yml` has no secrets in it and is
+safe to commit; `.env` holds the actual generated password and is
+git-ignored (see the repo-root `.gitignore`) so it never ends up on GitHub.
+`.env.example` is the committed template showing what keys `.env` needs,
+with placeholder values.
+
+### First-time setup
+
+```bash
+# One-time: copy the template and fill in real values.
+# (Already done on this machine — .env exists with generated passwords.)
+cp .env.example .env
+```
+
+### Everyday commands
+
+```bash
+# Start the database (runs in the background; safe to re-run)
+docker compose up -d
+
+# Check it's running
+docker compose ps
+
+# Stop it (data persists in the djmixer-mysql-data volume)
+docker compose stop
+
+# Stop AND permanently delete all data (careful — drops every table)
+docker compose down -v
+```
+
+### Connecting
+
+Container name: `djmixer-mysql` · Port: `3306` (mapped to your machine, so
+any MySQL client — Workbench, TablePlus, `mysql` CLI — can connect to
+`127.0.0.1:3306`) · Database: `djmixer` · App user: `djmixer_app` (the
+password is in your local `.env`, not written here since this file is
+public/committed).
+
+Quick sanity check from your terminal (reads the password out of `.env`
+rather than typing it):
+
+```bash
+set -a; source .env; set +a
+docker exec -e MYSQL_PWD="$MYSQL_PASSWORD" djmixer-mysql \
+  mysql -u "$MYSQL_USER" -h 127.0.0.1 -D "$MYSQL_DATABASE" -e "SHOW TABLES;"
+```
+
+The .NET connection string the app will use (Step 3 of the migration, still
+in progress) is built from these same `.env` values —
+`Server=127.0.0.1;Port=3306;Database=djmixer;User=djmixer_app;Password=...`.
 
 ## System diagrams (current state)
 
