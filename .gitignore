@@ -9,3 +9,4 @@
 
 # Local secrets (DB passwords, connection strings) — never commit these
 .env
+djmixer/DjMixOrganizer.App/Resources/Raw/local.env
