@@ -118,8 +118,9 @@ in an interview.
                     <VerticalStackLayout Grid.Row="1" Spacing="6" BindingContext="{Binding SelectedTrack}" x:DataType="models:Track">
                         <Label Text="{Binding DisplayName}" FontSize="24" FontAttributes="Bold" />
                         <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="16" />
-                        <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}  \x2014  song info including pitch'}"
-                               FontSize="13"
+                        <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="13" />
+                        <Label Text="Song info including pitch"
+                               FontSize="12"
                                TextColor="{StaticResource Gray300}" />
                     </VerticalStackLayout>
 
