@@ -44,6 +44,29 @@ public class HexToColorConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
+// Same source value as HexToColorConverter, but scaled down for the
+// waveform bars — "a darker shade of the node color" rather than the node
+// color itself, so the bars read as texture against the card's gradient
+// instead of competing with the border/gradient for attention.
+public class HexToDarkerColorConverter : IValueConverter
+{
+    private const float DarkenFactor = 0.55f;
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is not string hex)
+        {
+            return Colors.Gray;
+        }
+
+        var color = Color.FromArgb(hex);
+        return new Color(color.Red * DarkenFactor, color.Green * DarkenFactor, color.Blue * DarkenFactor);
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
 // "Static UI over fake data" for the waveform: seeding Random with the
 // node's own Guid means the bars are stable across re-renders (the same
 // node always looks the same) without storing fabricated waveform data on

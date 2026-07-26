@@ -65,11 +65,18 @@ public partial class MixDetailPage : ContentPage, IDrawable
 
     private void OnNodePanUpdated(object? sender, PanUpdatedEventArgs e)
     {
+        System.Diagnostics.Debug.WriteLine(
+            $"[Drag] fired: sender={sender?.GetType().Name} status={e.StatusType} totalX={e.TotalX} totalY={e.TotalY}");
+
         if (sender is not PanGestureRecognizer { Parent: Border border } ||
             border.BindingContext is not TrackNode node)
         {
+            System.Diagnostics.Debug.WriteLine(
+                $"[Drag] bailing early: parentType={(sender as PanGestureRecognizer)?.Parent?.GetType().Name ?? "null"}");
             return;
         }
+
+        System.Diagnostics.Debug.WriteLine($"[Drag] node={node.Track.Title}");
 
         if (e.StatusType == GestureStatus.Started)
         {

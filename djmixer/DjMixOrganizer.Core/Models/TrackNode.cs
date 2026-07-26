@@ -89,4 +89,14 @@ public class TrackNode : INotifyPropertyChanged
         get => _accentColorHex;
         set { _accentColorHex = value; OnPropertyChanged(); }
     }
+
+    // Free-text for now — real cue-point/section detection is out of scope
+    // for this phase (see MixDetailPage.xaml.cs teaching notes), so this is
+    // just an editable field rather than a computed one.
+    private string _trackSectionsText = "0:58-1:15   1:58-2:05";
+    public string TrackSectionsText
+    {
+        get => _trackSectionsText;
+        set { _trackSectionsText = value; OnPropertyChanged(); }
+    }
 }

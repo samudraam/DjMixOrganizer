@@ -36,6 +36,7 @@ something you can actually drag. Three things worth being able to explain:
     <ContentPage.Resources>
         <converters:CanvasPositionToBoundsConverter x:Key="PositionToBoundsConverter" />
         <converters:HexToColorConverter x:Key="HexToColorConverter" />
+        <converters:HexToDarkerColorConverter x:Key="HexToDarkerColorConverter" />
         <converters:TrackNodeToWaveformBarsConverter x:Key="WaveformConverter" />
     </ContentPage.Resources>
 
@@ -81,12 +82,21 @@ something you can actually drag. Three things worth being able to explain:
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="models:TrackNode">
                             <Border AbsoluteLayout.LayoutBounds="{Binding Position, Converter={StaticResource PositionToBoundsConverter}}"
-                                    BackgroundColor="{StaticResource SurfacePanelDark}"
                                     Stroke="{Binding AccentColorHex, Converter={StaticResource HexToColorConverter}}"
                                     StrokeThickness="3"
                                     StrokeShape="RoundRectangle 10"
                                     Padding="10"
                                     Loaded="OnNodeCardLoaded">
+
+                                <!-- Vertical gradient: the node's own accent
+                                     color at the top, fading to black at the
+                                     bottom (see the linear-gradient docs). -->
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <GradientStop Color="{Binding AccentColorHex, Converter={StaticResource HexToColorConverter}}" Offset="0.0" />
+                                        <GradientStop Color="Black" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Border.Background>
 
                                 <Border.GestureRecognizers>
                                     <PanGestureRecognizer PanUpdated="OnNodePanUpdated" />
@@ -113,7 +123,7 @@ something you can actually drag. Three things worth being able to explain:
                                             <DataTemplate x:DataType="x:Double">
                                                 <BoxView WidthRequest="4"
                                                          HeightRequest="{Binding .}"
-                                                         Color="White"
+                                                         Color="{Binding BindingContext.AccentColorHex, Source={RelativeSource AncestorType={x:Type Border}}, Converter={StaticResource HexToDarkerColorConverter}}"
                                                          VerticalOptions="End" />
                                             </DataTemplate>
                                         </BindableLayout.ItemTemplate>
@@ -150,7 +160,7 @@ something you can actually drag. Three things worth being able to explain:
 
                                     <VerticalStackLayout Grid.Row="5" Spacing="0">
                                         <Label Text="Track Sections:" FontSize="9" TextColor="{StaticResource Gray200}" />
-                                        <Label Text="0:58-1:15   1:58-2:05" FontSize="9" TextColor="White" />
+                                        <Entry Text="{Binding TrackSectionsText}" FontSize="9" TextColor="White" />
                                     </VerticalStackLayout>
 
                                 </Grid>
