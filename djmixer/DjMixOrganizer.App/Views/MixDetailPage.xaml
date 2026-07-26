@@ -2,19 +2,42 @@
 <!--
 File location: DjMixOrganizer.App/Views/MixDetailPage.xaml
 
-Phase 1 scaffold: header + back arrow + correct background. Not part of
-the Shell TabBar — pushed on top of the Mixes tab's navigation stack via
-GoToAsync, so Shell.TabBarIsVisible="False" hides the bottom nav while
-this page is open (matches the mockup: no bottom bar on the editor screen).
-Draggable node canvas lands in Phase 4 — see MixDetailViewModel.
+TEACHING NOTES
+==============
+This is the node-based mix editor brainstormed in README.md, turned into
+something you can actually drag. Three things worth being able to explain:
+
+1. AbsoluteLayout + BindableLayout.ItemsSource is what lets each TrackNode
+   render at an explicit X/Y (via CanvasPositionToBoundsConverter) instead
+   of auto-flowing like a Grid/StackLayout would — the one MAUI layout that
+   supports "put this exactly here."
+
+2. Dragging uses View.TranslationX/TranslationY (a visual transform, set in
+   MixDetailPage.xaml.cs), not a bound Position property. TrackNode.Position
+   only gets written once, when the drag ends. Presentation state vs.
+   domain state — same reasoning the README gives for MixCanvas vs. Mix.
+
+3. The GraphicsView behind the nodes redraws its connector lines on every
+   drag tick, reading each node's live TranslationX/Y off the actual Border
+   view (see the Draw method in the code-behind) — it doesn't wait for the
+   drag to finish.
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:DjMixOrganizer.App.ViewModels"
+             xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
+             xmlns:controls="clr-namespace:DjMixOrganizer.App.Controls"
+             xmlns:converters="clr-namespace:DjMixOrganizer.App.Converters"
              x:Class="DjMixOrganizer.App.Views.MixDetailPage"
              x:DataType="viewmodels:MixDetailViewModel"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <converters:CanvasPositionToBoundsConverter x:Key="PositionToBoundsConverter" />
+        <converters:HexToColorConverter x:Key="HexToColorConverter" />
+        <converters:TrackNodeToWaveformBarsConverter x:Key="WaveformConverter" />
+    </ContentPage.Resources>
 
     <Grid RowDefinitions="Auto,*">
 
@@ -30,11 +53,120 @@ Draggable node canvas lands in Phase 4 — see MixDetailViewModel.
             <Label Grid.Column="1" Text="Mix" Style="{StaticResource ScreenTitle}" />
         </Grid>
 
-        <Grid Grid.Row="1" BackgroundColor="{StaticResource SurfaceBody}">
-            <Label Text="Track sidebar and node canvas land here in Phase 4."
-                   TextColor="{StaticResource Gray400}"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center" />
+        <Grid Grid.Row="1"
+              BackgroundColor="{StaticResource SurfaceBody}"
+              ColumnDefinitions="260,*"
+              Padding="16"
+              ColumnSpacing="16">
+
+            <!-- Shared with LibraryPage — see Controls/TrackListPanel.xaml.
+                 Tapping a row here sets SelectedTrackToAdd, which
+                 MixDetailViewModel reacts to by adding a node to the
+                 canvas (see its OnSelectedTrackToAddChanged). -->
+            <controls:TrackListPanel Grid.Column="0"
+                                      TracksSource="{Binding AvailableTracks}"
+                                      SelectedTrack="{Binding SelectedTrackToAdd}" />
+
+            <Grid Grid.Column="1">
+
+                <!-- Behind the nodes: draws connector lines between
+                     consecutive nodes. InputTransparent so drag/tap
+                     gestures pass through to the node cards on top. -->
+                <GraphicsView x:Name="ConnectionsCanvas"
+                              BackgroundColor="Transparent"
+                              InputTransparent="True" />
+
+                <AbsoluteLayout x:Name="NodesLayout"
+                                BindableLayout.ItemsSource="{Binding Nodes}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:TrackNode">
+                            <Border AbsoluteLayout.LayoutBounds="{Binding Position, Converter={StaticResource PositionToBoundsConverter}}"
+                                    BackgroundColor="{StaticResource SurfacePanelDark}"
+                                    Stroke="{Binding AccentColorHex, Converter={StaticResource HexToColorConverter}}"
+                                    StrokeThickness="3"
+                                    StrokeShape="RoundRectangle 10"
+                                    Padding="10"
+                                    Loaded="OnNodeCardLoaded">
+
+                                <Border.GestureRecognizers>
+                                    <PanGestureRecognizer PanUpdated="OnNodePanUpdated" />
+                                </Border.GestureRecognizers>
+
+                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
+
+                                    <Label Grid.Row="0"
+                                           Text="{Binding Track.Title}"
+                                           Style="{StaticResource ItemTitle}"
+                                           TextColor="White"
+                                           FontSize="14"
+                                           LineBreakMode="TailTruncation" />
+
+                                    <!-- Static waveform bars — placeholder,
+                                         not real audio analysis (see
+                                         TrackNodeToWaveformBarsConverter). -->
+                                    <HorizontalStackLayout Grid.Row="1"
+                                                            Spacing="2"
+                                                            HeightRequest="28"
+                                                            VerticalOptions="End"
+                                                            BindableLayout.ItemsSource="{Binding ., Converter={StaticResource WaveformConverter}}">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="x:Double">
+                                                <BoxView WidthRequest="4"
+                                                         HeightRequest="{Binding .}"
+                                                         Color="White"
+                                                         VerticalOptions="End" />
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </HorizontalStackLayout>
+
+                                    <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                        <Label Grid.Column="0" Text="BPM :" TextColor="{StaticResource Gray200}" FontSize="12" VerticalOptions="Center" />
+                                        <Entry Grid.Column="1" Text="{Binding Bpm}" Keyboard="Numeric" FontSize="12" TextColor="White" />
+                                    </Grid>
+
+                                    <Grid Grid.Row="3" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                                        <Label Grid.Column="0" Text="Pitch :" TextColor="{StaticResource Gray200}" FontSize="12" VerticalOptions="Center" />
+                                        <Picker Grid.Column="1"
+                                                ItemsSource="{x:Static viewmodels:MixDetailViewModel.CamelotKeys}"
+                                                SelectedItem="{Binding Pitch}"
+                                                FontSize="12"
+                                                TextColor="White" />
+                                    </Grid>
+
+                                    <Grid Grid.Row="4" ColumnDefinitions="*,*,*">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                            <Label Text="Vocals" FontSize="9" TextColor="{StaticResource Gray200}" HorizontalOptions="Center" />
+                                            <Switch IsToggled="{Binding HasVocals}" Scale="0.65" HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="0">
+                                            <Label Text="Perc." FontSize="9" TextColor="{StaticResource Gray200}" HorizontalOptions="Center" />
+                                            <Switch IsToggled="{Binding HasPercussion}" Scale="0.65" HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="2" Spacing="0">
+                                            <Label Text="Music" FontSize="9" TextColor="{StaticResource Gray200}" HorizontalOptions="Center" />
+                                            <Switch IsToggled="{Binding HasMusic}" Scale="0.65" HorizontalOptions="Center" />
+                                        </VerticalStackLayout>
+                                    </Grid>
+
+                                    <VerticalStackLayout Grid.Row="5" Spacing="0">
+                                        <Label Text="Track Sections:" FontSize="9" TextColor="{StaticResource Gray200}" />
+                                        <Label Text="0:58-1:15   1:58-2:05" FontSize="9" TextColor="White" />
+                                    </VerticalStackLayout>
+
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </AbsoluteLayout>
+
+                <Button Text="Edit Color"
+                        Command="{Binding EditColorCommand}"
+                        HorizontalOptions="End"
+                        VerticalOptions="End"
+                        Margin="0,0,10,10" />
+
+            </Grid>
+
         </Grid>
 
     </Grid>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+File location: DjMixOrganizer.App/Controls/TrackListPanel.xaml
+
+TEACHING NOTES
+==============
+Extracted from LibraryPage.xaml's "Your Tracks" sidebar so LibraryPage and
+MixDetailPage share one piece of XAML instead of two copies that'd drift
+apart over time. A reusable ContentView exposes its own BindableProperties
+(TracksSource, SelectedTrack below) and binds its internal markup to itself
+via Source="{x:Reference Root}" — NOT to whatever BindingContext the control
+happens to be placed in. That's what makes it draggable into either page
+unchanged: it never assumes it's inside a LibraryViewModel or a
+MixDetailViewModel, only that whoever uses it sets these two properties.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:DjMixOrganizer.Core.Models;assembly=DjMixOrganizer.Core"
+             x:Class="DjMixOrganizer.App.Controls.TrackListPanel"
+             x:Name="Root">
+
+    <Border Style="{StaticResource PanelCard}">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+
+            <Label Grid.Row="0"
+                   Text="Your Tracks"
+                   Style="{StaticResource SectionTitle}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+
+            <HorizontalStackLayout Grid.Row="1" Spacing="8">
+                <Border BackgroundColor="{StaticResource ChipBpm}"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        Padding="10,4">
+                    <Label Text="BPM &#8593;" Style="{StaticResource ChipLabel}" />
+                </Border>
+                <Border BackgroundColor="{StaticResource ChipPitch}"
+                        StrokeShape="RoundRectangle 12"
+                        Stroke="Transparent"
+                        Padding="10,4">
+                    <Label Text="PITCH C" Style="{StaticResource ChipLabel}" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <CollectionView Grid.Row="2"
+                             ItemsSource="{Binding TracksSource, Source={x:Reference Root}}"
+                             SelectionMode="Single"
+                             SelectedItem="{Binding SelectedTrack, Source={x:Reference Root}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Track">
+                        <Grid ColumnDefinitions="40,*" Padding="0,6" ColumnSpacing="8">
+                            <Border Grid.Column="0"
+                                    BackgroundColor="{StaticResource SurfacePanelDark}"
+                                    StrokeShape="RoundRectangle 6"
+                                    Stroke="Transparent"
+                                    HeightRequest="40"
+                                    WidthRequest="40"
+                                    Padding="0">
+                                <Label Text="&#9835;"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       TextColor="{StaticResource Gray200}" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding Title}" Style="{StaticResource ItemTitle}" FontSize="13" LineBreakMode="TailTruncation" />
+                                <HorizontalStackLayout Spacing="10">
+                                    <Label Text="{Binding CamelotKey, StringFormat='Pitch : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
+                                    <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Grid.Row="3"
+                   Text="UPLOAD A SONG TO LIBRARY"
+                   FontSize="11"
+                   TextColor="{StaticResource Gray300}"
+                   HorizontalOptions="Center" />
+
+        </Grid>
+    </Border>
+
+</ContentView>
