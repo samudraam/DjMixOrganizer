@@ -40,7 +40,7 @@ regardless of how many mixes exist — cleaner than trying to special-case
         <converters:MixArtistsToStringConverter x:Key="MixArtistsConverter" />
     </ContentPage.Resources>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,*" BackgroundColor="{StaticResource SurfaceBody}">
 
         <!-- Row 0: header + loading spinner -->
         <Grid Grid.Row="0" Style="{StaticResource ScreenHeader}">
@@ -74,7 +74,7 @@ regardless of how many mixes exist — cleaner than trying to special-case
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:Mix">
-                        <Border BackgroundColor="White"
+                        <Border BackgroundColor="{StaticResource SurfacePanelDark}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 10"
                                 Padding="16,12"
@@ -85,18 +85,25 @@ regardless of how many mixes exist — cleaner than trying to special-case
                                     CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
                             <VerticalStackLayout Spacing="4">
+                                <!-- MAUI Label/Span have no real text-stroke property; a
+                                     near-zero-offset white Shadow is the closest native
+                                     approximation of a white outline around the colored text. -->
                                 <Label FormattedText="{Binding ., Converter={StaticResource MixTitleConverter}}"
                                        FontSize="17"
-                                       TextColor="Black" />
+                                       TextColor="White">
+                                    <Label.Shadow>
+                                        <Shadow Brush="Black" Opacity="1" Radius="2" Offset="0,0" />
+                                    </Label.Shadow>
+                                </Label>
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Label Grid.Column="0"
                                            Text="{Binding ., Converter={StaticResource MixArtistsConverter}}"
                                            FontSize="12"
-                                           TextColor="{StaticResource Gray500}" />
+                                           TextColor="{StaticResource Gray300}" />
                                     <Label Grid.Column="1"
                                            Text="{Binding RecordedDate, StringFormat='{0:MMM d, yyyy}'}"
                                            FontSize="12"
-                                           TextColor="{StaticResource Gray500}" />
+                                           TextColor="{StaticResource Gray300}" />
                                 </Grid>
                             </VerticalStackLayout>
                         </Border>
@@ -104,7 +111,7 @@ regardless of how many mixes exist — cleaner than trying to special-case
                 </CollectionView.ItemTemplate>
 
                 <CollectionView.Footer>
-                    <Border BackgroundColor="White"
+                    <Border BackgroundColor="{StaticResource SurfacePanelDark}"
                             Stroke="Transparent"
                             StrokeShape="RoundRectangle 10"
                             HeightRequest="72">
@@ -113,7 +120,7 @@ regardless of how many mixes exist — cleaner than trying to special-case
                         </Border.GestureRecognizers>
                         <Label Text="+"
                                FontSize="28"
-                               TextColor="Black"
+                               TextColor="White"
                                HorizontalOptions="Center"
                                VerticalOptions="Center" />
                     </Border>

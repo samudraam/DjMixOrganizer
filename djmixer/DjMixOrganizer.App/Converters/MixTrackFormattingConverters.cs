@@ -29,14 +29,18 @@ public class MixTitleToFormattedStringConverter : IValueConverter
     {
         var formatted = new FormattedString();
 
-        // Cards render on a white background (see MixListPage.xaml), so
-        // separator/fallback text needs a dark color — not the White used
-        // elsewhere in this app for dark-panel text.
-        var neutralTextColor = Color.FromArgb("#404040"); // Gray600
+        // Cards render on SurfacePanelDark (see MixListPage.xaml), so
+        // separator/fallback text needs a light color to stay visible.
+        var neutralTextColor = Color.FromArgb("#E1E1E1"); // Gray100
+
+        // Span doesn't reliably inherit FontFamily from the parent Label's
+        // Style, so the Jura heading font (see Styles.xaml's SectionTitle)
+        // is set explicitly here rather than left to the Label.
+        const string titleFontFamily = "JuraMedium";
 
         if (value is not Mix { Tracks.Count: > 0 } mix)
         {
-            formatted.Spans.Add(new Span { Text = "Untitled Mix", TextColor = neutralTextColor });
+            formatted.Spans.Add(new Span { Text = "Untitled Mix", TextColor = neutralTextColor, FontFamily = titleFontFamily });
             return formatted;
         }
 
@@ -44,14 +48,15 @@ public class MixTitleToFormattedStringConverter : IValueConverter
         {
             if (i > 0)
             {
-                formatted.Spans.Add(new Span { Text = " x ", TextColor = neutralTextColor });
+                formatted.Spans.Add(new Span { Text = " x ", TextColor = neutralTextColor, FontFamily = titleFontFamily });
             }
 
             formatted.Spans.Add(new Span
             {
                 Text = mix.Tracks[i].Track.Title,
-                TextColor = NodeColors[i % NodeColors.Length],
+                TextColor = Colors.White,
                 FontAttributes = FontAttributes.Bold,
+                FontFamily = titleFontFamily,
             });
         }
 
