@@ -62,10 +62,10 @@ platform.
    `DjMixOrganizer.Core` with real invariants (no duplicate start times,
    encapsulated collections). Get comfortable with C# records, nullable
    reference types, and why we keep this project dependency-free.
-2. 🔶 **MVVM + data-binding** — `MixListViewModel`/`MixListPage` are wired
-   through DI (`MauiProgram.cs`) and the binding round-trip works. But
-   `LoadMixesCommand` is still a stub (`await Task.Delay(300)`) — there's no
-   `IMixRepository` interface in Core yet for it to call.
+2. ✅ **MVVM + data-binding** — `MixListViewModel`/`MixListPage` are wired
+   through DI (`MauiProgram.cs`), and `LoadMixesCommand` calls a real
+   `IMixRepository` (`InMemoryMixRepository` for now) instead of stubbing
+   with `Task.Delay`.
 3. ⬜ **ID3 tag parsing** — reading raw bytes from an mp3 file header by hand
    before reaching for a library, so you understand the binary format.
    `DjMixOrganizer.Data` currently has no code at all — just a `.csproj`
