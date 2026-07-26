@@ -32,6 +32,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DjMixOrganizer.Core.Models;
+using DjMixOrganizer.Core.Repositories;
 
 namespace DjMixOrganizer.App.ViewModels;
 
@@ -40,6 +41,8 @@ namespace DjMixOrganizer.App.ViewModels;
 // react to changes on.
 public partial class MixListViewModel : ObservableObject
 {
+    private readonly IMixRepository _mixRepository;
+
     // ObservableCollection, not List — ObservableCollection raises
     // CollectionChanged events when items are added/removed, which is what
     // lets a bound ListView/CollectionView in XAML update automatically
@@ -51,21 +54,24 @@ public partial class MixListViewModel : ObservableObject
     [ObservableProperty]
     private bool _isLoading;
 
-    // NOTE: this is a placeholder for now — in Phase 3/4 this will call
-    // into an IMixRepository (defined in Core, implemented in Data) that
-    // does real async file-system scanning. Wiring it as async here now,
-    // even before the real implementation exists, means the UI layer is
-    // already correctly built to not freeze during a slow load — that's
-    // deliberate: async-by-default is the real-time-systems habit we want
-    // baked in from the start, not bolted on later.
+    public MixListViewModel(IMixRepository mixRepository)
+    {
+        _mixRepository = mixRepository;
+    }
+
+    // Wired as async even though InMemoryMixRepository has no real I/O yet
+    // — that's deliberate: async-by-default is the real-time-systems habit
+    // we want baked in from the start, not bolted on later. Swapping this
+    // for a SQLite-backed IMixRepository later won't require touching this
+    // method at all.
     [RelayCommand]
     private async Task LoadMixesAsync()
     {
         IsLoading = true;
         try
         {
-            // TODO Phase 3/4: replace with await _mixRepository.GetAllAsync()
-            await Task.Delay(300); // simulates I/O latency for now
+            var mixes = await _mixRepository.GetAllAsync();
+            Mixes = new ObservableCollection<Mix>(mixes);
         }
         finally
         {
