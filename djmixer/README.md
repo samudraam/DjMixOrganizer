@@ -1,4 +1,4 @@
-# DJ Mix Organizer — Learning Roadmap
+# DJ Mix Organizer 
 
 - App – the UI (MixListPage, etc.)
 - Core – models like Mix, Track, Playlist
@@ -84,9 +84,6 @@ platform.
    MAUI client itself isn't containerized.
 7. ⬜ **GitHub Actions** — CI pipeline: restore, build, test on every push.
   No workflow files exist in the repo yet.
-8. 🔶 **Android target + kiosk discussion** — iOS builds and runs today (see
-  "How to Run" above). Android is untested, and the kiosk/`LockTask`
-   discussion hasn't started.
 
 Two loose ends worth cleaning up independent of what's next: `MainPage.xaml`
 is the unmodified `dotnet new maui` template screen — `AppShell` already
