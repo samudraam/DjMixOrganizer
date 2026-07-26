@@ -73,10 +73,9 @@ regardless of how many mixes exist — cleaner than trying to special-case
                      empty and we're not currently loading. -->
                 <CollectionView.EmptyView>
                     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="8">
-                        <Label Text="No mixes yet." FontSize="16" HorizontalOptions="Center" />
+                        <Label Text="No mixes yet." FontSize="19" HorizontalOptions="Center" />
                         <Label Text="Tap the + card below to start one."
-                               FontSize="13"
-                               TextColor="{StaticResource Gray300}"
+                               Style="{StaticResource SongMetaLabel}"
                                HorizontalOptions="Center" />
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
@@ -101,7 +100,7 @@ regardless of how many mixes exist — cleaner than trying to special-case
                                      near-zero-offset white Shadow is the closest native
                                      approximation of a white outline around the colored text. -->
                                 <Label FormattedText="{Binding ., Converter={StaticResource MixTitleConverter}}"
-                                       FontSize="17"
+                                       FontSize="20"
                                        TextColor="White">
                                     <Label.Shadow>
                                         <Shadow Brush="Black" Opacity="1" Radius="2" Offset="0,0" />
@@ -110,12 +109,10 @@ regardless of how many mixes exist — cleaner than trying to special-case
                                 <Grid ColumnDefinitions="*,Auto">
                                     <Label Grid.Column="0"
                                            Text="{Binding ., Converter={StaticResource MixArtistsConverter}}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource Gray300}" />
+                                           Style="{StaticResource SongMetaLabel}" />
                                     <Label Grid.Column="1"
                                            Text="{Binding RecordedDate, StringFormat='{0:MMM d, yyyy}'}"
-                                           FontSize="12"
-                                           TextColor="{StaticResource Gray300}" />
+                                           Style="{StaticResource SongMetaLabel}" />
                                 </Grid>
                             </VerticalStackLayout>
                         </Border>

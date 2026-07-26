@@ -81,13 +81,16 @@ points at the ViewModel. The View stays markup + OnAppearing only.
                                          x:DataType="models:Track">
                         <Label Text="{Binding DisplayName}"
                                Style="{StaticResource SectionTitle}"
-                               FontSize="24"
+                               FontSize="28"
                                FontAttributes="Bold" />
-                        <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="16" />
-                        <Label Text="{Binding MusicalKey, StringFormat='Key : {0}'}" FontSize="13" />
+                        <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}"
+                               Style="{StaticResource SongMetaLabel}"
+                               FontSize="18" />
+                        <Label Text="{Binding MusicalKey, StringFormat='Key : {0}'}"
+                               Style="{StaticResource SongMetaLabel}"
+                               FontSize="18" />
                         <Label Text="Song info including key"
-                               FontSize="12"
-                               TextColor="{StaticResource Gray300}" />
+                               Style="{StaticResource SongMetaLabel}" />
                     </VerticalStackLayout>
 
                     <Button Grid.Row="2"
@@ -109,53 +112,52 @@ points at the ViewModel. The View stays markup + OnAppearing only.
                     <VerticalStackLayout Spacing="14">
                         <Label Text="{Binding FormHeading}"
                                Style="{StaticResource SectionTitle}"
-                               FontSize="22"
+                               FontSize="26"
                                FontAttributes="Bold" />
 
-                        <Label Text="Title" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Label Text="Title" Style="{StaticResource SongMetaLabel}" />
                         <Entry Text="{Binding NewTitle}"
                                Placeholder="Track title"
                                TextColor="White"
-                               PlaceholderColor="{StaticResource Gray300}" />
+                               PlaceholderColor="{StaticResource SongMetaText}" />
 
-                        <Label Text="Artist" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Label Text="Artist" Style="{StaticResource SongMetaLabel}" />
                         <Entry Text="{Binding NewArtist}"
                                Placeholder="Optional"
                                TextColor="White"
-                               PlaceholderColor="{StaticResource Gray300}" />
+                               PlaceholderColor="{StaticResource SongMetaText}" />
 
-                        <Label Text="BPM" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Label Text="BPM" Style="{StaticResource SongMetaLabel}" />
                         <Entry Text="{Binding NewBpmText}"
                                Placeholder="e.g. 128"
                                Keyboard="Numeric"
                                TextColor="White"
-                               PlaceholderColor="{StaticResource Gray300}" />
+                               PlaceholderColor="{StaticResource SongMetaText}" />
 
-                        <Label Text="Key (letter form)" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Label Text="Key (letter form)" Style="{StaticResource SongMetaLabel}" />
                         <Picker Title="Select key"
                                 ItemsSource="{x:Static viewmodels:LibraryViewModel.MusicalKeys}"
                                 SelectedItem="{Binding NewKey}"
                                 TextColor="White" />
 
-                        <Label Text="Audio file" FontSize="12" TextColor="{StaticResource Gray300}" />
+                        <Label Text="Audio file" Style="{StaticResource SongMetaLabel}" />
                         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                             <Entry Grid.Column="0"
                                    Text="{Binding NewFilePath}"
                                    Placeholder="Paste a path or use Browse"
                                    TextColor="White"
-                                   PlaceholderColor="{StaticResource Gray300}" />
+                                   PlaceholderColor="{StaticResource SongMetaText}" />
                             <Button Grid.Column="1"
                                     Text="Browse"
                                     Command="{Binding PickAudioFileCommand}" />
                         </Grid>
                         <Label Text="{Binding NewFileDisplayName}"
-                               FontSize="11"
-                               TextColor="{StaticResource Gray300}"
+                               Style="{StaticResource SongMetaLabel}"
                                LineBreakMode="MiddleTruncation"
                                MaxLines="1" />
 
                         <Label Text="{Binding StatusMessage}"
-                               FontSize="12"
+                               FontSize="15"
                                TextColor="{StaticResource Gray200}"
                                LineBreakMode="WordWrap" />
 

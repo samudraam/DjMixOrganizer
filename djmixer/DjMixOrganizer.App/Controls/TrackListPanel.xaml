@@ -25,7 +25,7 @@ MixDetailViewModel, only that whoever uses it sets these two properties.
             <Label Grid.Row="0"
                    Text="Your Tracks"
                    Style="{StaticResource SectionTitle}"
-                   FontSize="18"
+                   FontSize="22"
                    FontAttributes="Bold"
                    HorizontalOptions="Center" />
 
@@ -66,10 +66,10 @@ MixDetailViewModel, only that whoever uses it sets these two properties.
                                        TextColor="{StaticResource Gray200}" />
                             </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="2">
-                                <Label Text="{Binding Title}" Style="{StaticResource ItemTitle}" FontSize="13" LineBreakMode="WordWrap" />
+                                <Label Text="{Binding Title}" Style="{StaticResource ItemTitle}" FontSize="16" LineBreakMode="WordWrap" />
                                 <HorizontalStackLayout Spacing="10">
-                                    <Label Text="{Binding MusicalKey, StringFormat='Key : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
-                                    <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" FontSize="11" TextColor="{StaticResource Gray300}" />
+                                    <Label Text="{Binding MusicalKey, StringFormat='Key : {0}'}" Style="{StaticResource SongMetaLabel}" />
+                                    <Label Text="{Binding Bpm, StringFormat='BPM : {0}'}" Style="{StaticResource SongMetaLabel}" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Grid>
@@ -79,8 +79,7 @@ MixDetailViewModel, only that whoever uses it sets these two properties.
 
             <Label Grid.Row="3"
                    Text="UPLOAD A SONG TO LIBRARY"
-                   FontSize="11"
-                   TextColor="{StaticResource Gray300}"
+                   Style="{StaticResource SongMetaLabel}"
                    HorizontalOptions="Center" />
 
         </Grid>
