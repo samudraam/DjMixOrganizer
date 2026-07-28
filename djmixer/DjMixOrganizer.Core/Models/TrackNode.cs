@@ -1,6 +1,6 @@
 // File location: DjMixOrganizer.Core/Models/TrackNode.cs
 //
-// TEACHING NOTES
+// NOTES
 // ---------------
 // This is the node-based mix editor brainstormed in README.md, made
 // concrete. A TrackNode is "this Track, placed in this one Mix's canvas" —

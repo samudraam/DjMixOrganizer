@@ -50,7 +50,7 @@
     <Color x:Key="SurfacePanelDark">#4A4950</Color>
     <Color x:Key="ChipBpm">#6B6F9E</Color>
     <Color x:Key="ChipKey">#7C8F5A</Color>
-    <Color x:Key="SongMetaText">#4f4f4d</Color>
+    <Color x:Key="SongMetaText">#FFFFFF</Color>
     <Color x:Key="NodeMagenta">#C21E7A</Color>
     <Color x:Key="NodeBlue">#1E3FE0</Color>
     <Color x:Key="NodeGreen">#1E9E3C</Color>

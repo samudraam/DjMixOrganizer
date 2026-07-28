@@ -131,6 +131,7 @@ something you can actually drag. Three things worth being able to explain:
                                     <PanGestureRecognizer PanUpdated="OnNodePanUpdated" />
                                 </Border.GestureRecognizers>
 
+                                <Grid>
                                 <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="6">
 
                                     <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -168,7 +169,7 @@ something you can actually drag. Three things worth being able to explain:
                                          TrackNodeToWaveformBarsConverter). -->
                                     <HorizontalStackLayout Grid.Row="1"
                                                             Spacing="2"
-                                                            HeightRequest="28"
+                                                            HeightRequest="40"
                                                             VerticalOptions="End"
                                                             BindableLayout.ItemsSource="{Binding ., Converter={StaticResource WaveformConverter}}">
                                         <BindableLayout.ItemTemplate>
@@ -214,6 +215,26 @@ something you can actually drag. Three things worth being able to explain:
                                         <Label Text="Track Sections:" Style="{StaticResource SongMetaLabel}" FontSize="12" />
                                         <Entry Text="{Binding TrackSectionsText}" FontSize="12" TextColor="White" />
                                     </VerticalStackLayout>
+
+                                </Grid>
+
+                                <!-- Resize handle: drag to grow/shrink the card so
+                                     content like Track Sections stops clipping. -->
+                                <Label Text="&#9698;"
+                                       FontSize="14"
+                                       TextColor="White"
+                                       Opacity="0.55"
+                                       WidthRequest="24"
+                                       HeightRequest="24"
+                                       HorizontalOptions="End"
+                                       VerticalOptions="End"
+                                       HorizontalTextAlignment="End"
+                                       VerticalTextAlignment="End"
+                                       Margin="0,0,2,2">
+                                    <Label.GestureRecognizers>
+                                        <PanGestureRecognizer PanUpdated="OnResizeHandlePanUpdated" />
+                                    </Label.GestureRecognizers>
+                                </Label>
 
                                 </Grid>
                             </Border>

@@ -1,6 +1,6 @@
 // File location: DjMixOrganizer.Core/Models/Mix.cs
 //
-// TEACHING NOTES
+// NOTES
 // ---------------
 // A "Mix" is an ordered sequence of Tracks — this is your aggregate root.
 // In domain-driven design terms, an "aggregate" is a cluster of objects
