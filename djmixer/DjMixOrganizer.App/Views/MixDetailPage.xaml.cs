@@ -29,9 +29,18 @@ public partial class MixDetailPage : ContentPage, IDrawable
 {
     private const double CardWidth = Converters.CanvasPositionToBoundsConverter.CardWidth;
     private const double CardHeight = Converters.CanvasPositionToBoundsConverter.CardHeight;
+    private const double MinCardHeight = 180;
 
     private readonly MixDetailViewModel _viewModel;
     private readonly Dictionary<Guid, Border> _nodeBorders = [];
+
+    // Card height is resized by dragging the corner handle (see the
+    // resize-handle Label in the DataTemplate). Like Position, this is
+    // presentation state only — it isn't part of TrackNode/persisted on
+    // save — so it lives here rather than on the model, keyed by node Id
+    // so it survives the card being re-templated (e.g. when Nodes changes).
+    private readonly Dictionary<Guid, double> _nodeCardHeights = [];
+    private double _resizeStartHeight;
 
     public MixDetailPage(MixDetailViewModel viewModel)
     {
@@ -59,8 +68,75 @@ public partial class MixDetailPage : ContentPage, IDrawable
         if (sender is Border { BindingContext: TrackNode node } border)
         {
             _nodeBorders[node.Id] = border;
+
+            if (_nodeCardHeights.TryGetValue(node.Id, out var savedHeight))
+            {
+                AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, savedHeight));
+            }
+            else
+            {
+                _nodeCardHeights[node.Id] = CardHeight;
+            }
+
             ConnectionsCanvas.Invalidate();
         }
+    }
+
+    // Fires from the small corner handle inside each node card, kept
+    // separate from OnNodePanUpdated (which moves the whole card) so
+    // dragging the handle resizes instead of dragging the card.
+    private void OnResizeHandlePanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine(
+            $"[Resize] fired: sender={sender?.GetType().Name} status={e.StatusType} totalX={e.TotalX} totalY={e.TotalY}");
+
+        if (sender is not PanGestureRecognizer { Parent: View handle })
+        {
+            System.Diagnostics.Debug.WriteLine("[Resize] bailing early: sender is not a PanGestureRecognizer with a Parent view");
+            return;
+        }
+
+        if (FindAncestorBorder(handle) is not { BindingContext: TrackNode node } border)
+        {
+            System.Diagnostics.Debug.WriteLine("[Resize] bailing early: no ancestor Border with a TrackNode BindingContext");
+            return;
+        }
+
+        System.Diagnostics.Debug.WriteLine($"[Resize] node={node.Track.Title}");
+
+        switch (e.StatusType)
+        {
+            case GestureStatus.Started:
+                _resizeStartHeight = _nodeCardHeights.TryGetValue(node.Id, out var height) ? height : CardHeight;
+                System.Diagnostics.Debug.WriteLine($"[Resize] started at height={_resizeStartHeight}");
+                break;
+
+            case GestureStatus.Running:
+                var liveHeight = Math.Max(MinCardHeight, _resizeStartHeight + e.TotalY);
+                AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, liveHeight));
+                ConnectionsCanvas.Invalidate();
+                System.Diagnostics.Debug.WriteLine($"[Resize] running, liveHeight={liveHeight}");
+                break;
+
+            case GestureStatus.Completed:
+            case GestureStatus.Canceled:
+                _nodeCardHeights[node.Id] = Math.Max(MinCardHeight, _resizeStartHeight + e.TotalY);
+                System.Diagnostics.Debug.WriteLine($"[Resize] committed height={_nodeCardHeights[node.Id]}");
+                break;
+        }
+    }
+
+    private static Border? FindAncestorBorder(Element element)
+    {
+        for (var current = element.Parent; current is not null; current = current.Parent)
+        {
+            if (current is Border border)
+            {
+                return border;
+            }
+        }
+
+        return null;
     }
 
     private void OnNodePanUpdated(object? sender, PanUpdatedEventArgs e)
@@ -99,7 +175,8 @@ public partial class MixDetailPage : ContentPage, IDrawable
                     node.Position.Y + border.TranslationY);
                 border.TranslationX = 0;
                 border.TranslationY = 0;
-                AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, CardHeight));
+                var cardHeight = _nodeCardHeights.TryGetValue(node.Id, out var height) ? height : CardHeight;
+                AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, cardHeight));
                 ConnectionsCanvas.Invalidate();
                 break;
         }
@@ -130,7 +207,11 @@ public partial class MixDetailPage : ContentPage, IDrawable
         }
     }
 
-    private static PointF CenterOf(TrackNode node, Border border) => new(
-        (float)(node.Position.X + border.TranslationX + CardWidth / 2),
-        (float)(node.Position.Y + border.TranslationY + CardHeight / 2));
+    private PointF CenterOf(TrackNode node, Border border)
+    {
+        var height = _nodeCardHeights.TryGetValue(node.Id, out var h) ? h : CardHeight;
+        return new PointF(
+            (float)(node.Position.X + border.TranslationX + CardWidth / 2),
+            (float)(node.Position.Y + border.TranslationY + height / 2));
+    }
 }

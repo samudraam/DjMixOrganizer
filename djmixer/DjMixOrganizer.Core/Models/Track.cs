@@ -1,6 +1,6 @@
 // File location: DjMixOrganizer.Core/Models/Track.cs
 //
-// TEACHING NOTES
+// NOTES
 // ---------------
 // A "Track" is a single song inside a mix — it's the atomic unit everything
 // else (Mix, Playlist) is built from. Get this one right and the rest of

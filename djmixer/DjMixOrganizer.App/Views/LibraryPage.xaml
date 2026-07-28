@@ -36,7 +36,7 @@ points at the ViewModel. The View stays markup + OnAppearing only.
                    WidthRequest="24"
                    Margin="16,0,8,0"
                    VerticalOptions="Center" />
-            <Label Grid.Column="1" Text="Library" Style="{StaticResource ScreenTitle}" />
+            <Label Grid.Column="1" Text="Library" Style="{StaticResource ScreenTitle}" HorizontalOptions="Start" />
             <Button Grid.Column="2"
                     Text="Add song"
                     Command="{Binding BeginAddSongCommand}"

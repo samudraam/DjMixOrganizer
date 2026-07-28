@@ -1,6 +1,6 @@
 // File location: DjMixOrganizer.Core/Models/Playlist.cs
 //
-// TEACHING NOTES
+// NOTES
 // ---------------
 // A Playlist groups Mixes (not Tracks) — e.g. "Warehouse Sets 2026" might
 // contain several full mixes. Notice it holds a list of Guid, not a list

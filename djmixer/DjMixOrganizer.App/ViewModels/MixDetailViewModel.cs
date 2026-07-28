@@ -155,6 +155,7 @@ public partial class MixDetailViewModel : ObservableObject, IQueryAttributable
 
         try
         {
+            //TODO FIX THIS UPLOAD ISSUE
             // Library uploads often still have Duration = Zero (no file-length
             // probe yet). Mix.AddTrack forbids duplicate StartTimes, so a zero
             // step would crash the save. Placeholder 1s keeps order for now —
