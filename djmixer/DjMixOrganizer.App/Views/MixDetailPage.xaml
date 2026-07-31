@@ -65,12 +65,15 @@ something you can actually drag. Three things worth being able to explain:
                    TextColor="{StaticResource Gray600}"
                    HorizontalTextAlignment="Center"
                    VerticalOptions="Center" />
-
-            <Button Grid.Column="2"
-                    Text="Save"
-                    Command="{Binding SaveMixCommand}"
-                    HorizontalOptions="End"
-                    Margin="0,0,12,0" />
+        <Button Grid.Column="2"
+            Text="Save"
+            Command="{Binding SaveMixCommand}"
+            HorizontalOptions="End"
+            VerticalOptions="Center"
+            HeightRequest="40"
+            Padding="14,8"
+            Margin="0,0,12,0" />
+        
         </Grid>
 
         <!-- Mirrors LibraryPage's StatusMessage: SaveMixAsync never rethrows,

@@ -28,8 +28,8 @@ namespace DjMixOrganizer.App.Views;
 public partial class MixDetailPage : ContentPage, IDrawable
 {
     private const double CardWidth = Converters.CanvasPositionToBoundsConverter.CardWidth;
-    private const double CardHeight = Converters.CanvasPositionToBoundsConverter.CardHeight;
-    private const double MinCardHeight = 180;
+    private const double FallbackCardHeight = Converters.CanvasPositionToBoundsConverter.CardHeight;
+    private const double MinCardHeight = 280;
 
     private readonly MixDetailViewModel _viewModel;
     private readonly Dictionary<Guid, Border> _nodeBorders = [];
@@ -69,13 +69,12 @@ public partial class MixDetailPage : ContentPage, IDrawable
         {
             _nodeBorders[node.Id] = border;
 
+            // Only override AutoSize when the user previously resized this card.
+            // Do NOT seed _nodeCardHeights with a fixed default — that used to
+            // lock every card to CardHeight and clip Track Sections after a drag.
             if (_nodeCardHeights.TryGetValue(node.Id, out var savedHeight))
             {
                 AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, savedHeight));
-            }
-            else
-            {
-                _nodeCardHeights[node.Id] = CardHeight;
             }
 
             ConnectionsCanvas.Invalidate();
@@ -107,7 +106,7 @@ public partial class MixDetailPage : ContentPage, IDrawable
         switch (e.StatusType)
         {
             case GestureStatus.Started:
-                _resizeStartHeight = _nodeCardHeights.TryGetValue(node.Id, out var height) ? height : CardHeight;
+                _resizeStartHeight = ResolveCardHeight(node.Id, border);
                 System.Diagnostics.Debug.WriteLine($"[Resize] started at height={_resizeStartHeight}");
                 break;
 
@@ -175,7 +174,11 @@ public partial class MixDetailPage : ContentPage, IDrawable
                     node.Position.Y + border.TranslationY);
                 border.TranslationX = 0;
                 border.TranslationY = 0;
-                var cardHeight = _nodeCardHeights.TryGetValue(node.Id, out var height) ? height : CardHeight;
+                // Keep a user resize if one exists; otherwise AutoSize so
+                // Track Sections stays visible without guessing pixels.
+                var cardHeight = _nodeCardHeights.TryGetValue(node.Id, out var height)
+                    ? height
+                    : AbsoluteLayout.AutoSize;
                 AbsoluteLayout.SetLayoutBounds(border, new Rect(node.Position.X, node.Position.Y, CardWidth, cardHeight));
                 ConnectionsCanvas.Invalidate();
                 break;
@@ -209,9 +212,22 @@ public partial class MixDetailPage : ContentPage, IDrawable
 
     private PointF CenterOf(TrackNode node, Border border)
     {
-        var height = _nodeCardHeights.TryGetValue(node.Id, out var h) ? h : CardHeight;
+        var height = ResolveCardHeight(node.Id, border);
         return new PointF(
             (float)(node.Position.X + border.TranslationX + CardWidth / 2),
             (float)(node.Position.Y + border.TranslationY + height / 2));
+    }
+
+    /// <summary>
+    /// Prefer a user-resized height, then the view's measured height, then a fallback.
+    /// </summary>
+    private double ResolveCardHeight(Guid nodeId, Border border)
+    {
+        if (_nodeCardHeights.TryGetValue(nodeId, out var saved))
+        {
+            return saved;
+        }
+
+        return border.Height > 0 ? border.Height : FallbackCardHeight;
     }
 }

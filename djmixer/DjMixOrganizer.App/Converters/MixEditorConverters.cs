@@ -15,18 +15,21 @@ using DjMixOrganizer.Core.Models;
 namespace DjMixOrganizer.App.Converters;
 
 // AbsoluteLayout positions children via a Rect (X, Y, Width, Height), but
-// the domain model only needs to know X/Y — Width/Height are a fixed node
-// card size, a presentation detail. This converter is what bridges the two
-// without teaching TrackNode/CanvasPosition anything about pixel sizes.
+// the domain model only needs to know X/Y. Width is a presentation choice;
+// height uses AbsoluteLayout.AutoSize so the card grows with its content
+// (Track Sections Entry, Picker, etc.) instead of clipping at a guessed
+// pixel height — guessing 260/360 failed on iOS where Entry/Picker are tall.
 public class CanvasPositionToBoundsConverter : IValueConverter
 {
     public const double CardWidth = 230;
-    public const double CardHeight = 260;
+
+    /// <summary>Fallback when a view has not measured yet (connectors / resize start).</summary>
+    public const double CardHeight = 360;
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is CanvasPosition pos
-            ? new Rect(pos.X, pos.Y, CardWidth, CardHeight)
-            : new Rect(0, 0, CardWidth, CardHeight);
+            ? new Rect(pos.X, pos.Y, CardWidth, AbsoluteLayout.AutoSize)
+            : new Rect(0, 0, CardWidth, AbsoluteLayout.AutoSize);
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotSupportedException();
